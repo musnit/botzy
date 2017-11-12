@@ -1,5 +1,5 @@
 const Pusher = require('pusher-js');
-const WebSocket = require('ws');
+// const WebSocket = require('ws');
 const _ = require('lodash');
 
 const Paircodes = require('./config/paircodes');
@@ -8,9 +8,6 @@ const PAIRS = require('./config/pairs');
 const InvertedPaircodes = _.mapValues(Paircodes, codes => _.invert(codes));
 
 const Fees = require('./config/fees');
-
-
-let state = {};
 
 const exchanges = [
   {
@@ -60,13 +57,13 @@ function compareForPair(pairStateOne, pairStateTwo) {
   console.log(`Buy ${pairStateTwo.exchange.name} sell ${pairStateOne.exchange.name}: ${buy2Sell1/stateTwo.askPrice*100}`);
 }
 
-function calcBoth(pair) {
+function calcBoth(pair, globalState) {
   console.log();
   console.log(`${pair}:`);
   const statesForPair = exchanges.map(exchange => {
     return {
       exchange,
-      state: state[exchange.name][pair]
+      state: globalState[exchange.name][pair]
     };
   });
   for(let i = 0; i < statesForPair.length - 1; i++) {
@@ -78,9 +75,9 @@ function calcBoth(pair) {
   }
 }
 
-function startWSExchange(exchangeName, messageUpdatedCallback) {
+function startWSExchange(exchangeName, messageUpdatedCallback, globalState) {
   const wss = new WebSocket(wsConfig[exchangeName].wsURL);
-  state[exchangeName] = {};
+  globalState[exchangeName] = {};
   wss.onopen = () => {
     activeChannels[exchangeName] = {};
     PAIRS.forEach(pair => {
@@ -105,7 +102,7 @@ function startWSExchange(exchangeName, messageUpdatedCallback) {
       console.log(`${exchangeName} subscribed to channel ${data.channel} for pair ${data.pair} with id ${data.chanId}`);
       const normalizedPair = InvertedPaircodes[exchangeName][data.pair];
       activeChannels[exchangeName][data.chanId] = normalizedPair;
-      state[exchangeName][normalizedPair] = {};
+      globalState[exchangeName][normalizedPair] = {};
       return;
     }
     if (data[1] === 'hb') {
@@ -115,36 +112,36 @@ function startWSExchange(exchangeName, messageUpdatedCallback) {
     }
     const channel = data[0];
     const pair = activeChannels[exchangeName][channel];
-    state[exchangeName][pair].bidPrice = data[1];
-    state[exchangeName][pair].bidSize = data[2];
-    state[exchangeName][pair].askPrice = data[3];
-    state[exchangeName][pair].askSize = data[4];
-    messageUpdatedCallback(pair);
+    globalState[exchangeName][pair].bidPrice = data[1];
+    globalState[exchangeName][pair].bidSize = data[2];
+    globalState[exchangeName][pair].askPrice = data[3];
+    globalState[exchangeName][pair].askSize = data[4];
+    messageUpdatedCallback(pair, globalState);
   };
 }
 
-function startPusherExchange(exchangeName, messageUpdatedCallback) {
+function startPusherExchange(exchangeName, messageUpdatedCallback, globalState) {
   const socket = new Pusher(wsConfig[exchangeName].pusherAppKey, {
   });
-  state[exchangeName] = {};
+  globalState[exchangeName] = {};
 
   PAIRS.forEach(pair => {
     const channel = socket.subscribe(wsConfig[exchangeName].channelName(pair));
-    state[exchangeName][pair] = {};
+    globalState[exchangeName][pair] = {};
 
     channel.bind(wsConfig[exchangeName].eventName, data => {
-      state[exchangeName][pair].bidPrice = data.bids[0][0];
-      state[exchangeName][pair].bidSize = data.bids[0][1];
-      state[exchangeName][pair].askPrice = data.asks[0][0];
-      state[exchangeName][pair].askSize = data.asks[0][1];
-      messageUpdatedCallback(pair);
+      globalState[exchangeName][pair].bidPrice = data.bids[0][0];
+      globalState[exchangeName][pair].bidSize = data.bids[0][1];
+      globalState[exchangeName][pair].askPrice = data.asks[0][0];
+      globalState[exchangeName][pair].askSize = data.asks[0][1];
+      messageUpdatedCallback(pair, globalState);
     });
   });
 }
 
-module.exports = _ => {
+module.exports = globalState => {
   console.log('Starting');
   exchanges.forEach(exchange => {
-    exchange.adapter(exchange.name, calcBoth);
+    exchange.adapter(exchange.name, calcBoth, globalState);
   });
 }
