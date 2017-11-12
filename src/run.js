@@ -9,29 +9,30 @@ const spreadsheetId = '1Y0F21eNe8fV9ekfNSa-TY1O0t41s8pqJez7G3ov3YdI';
 const bitstampCurrencyCells = 'bitstamp script testing!A2:A13';
 const bitstampCurrencyValueCells = 'bitstamp script testing!B2:B13';
 
-const bitstampURL = 'https://www.bitstamp.net/api/v2/ticker/';
-const baseURL = bitstampURL;
+const exchangeAPIs = {
+  bitstamp: {
+    tickerBaseURL: 'https://www.bitstamp.net/api/v2/ticker/',
+    pairsURL: 'https://www.bitstamp.net/api/v2/trading-pairs-info/',
+    pairsToSymbolsMap: _ => _.url_symbol,
+    fee: 0.9975,
+  },
+  bitfinex: {
+    tickerBaseURL: 'https://api.bitfinex.com/v1/pubticker/',
+    pairsURL: 'https://api.bitfinex.com/v1/symbols/',
+    pairsToSymbolsMap: _ => _,
+    fee: 0.9980,
+  }
+}
 
-const getSheetValues = params => new Promise((resolve, reject) => {
-  sheets.spreadsheets.values.get(params, (err, response) => {
-      if(err) {
-        reject(err);
-      }
-      else {
-        resolve(response);
-      }
-  });
-});
+const exchange = exchangeAPIs.bitfinex;
 
-const setSheetValues = params => new Promise((resolve, reject) => {
-  sheets.spreadsheets.values.update(params, (err, response) => {
-    if(err) {
-      reject(err);
-    } else {
-      resolve(response);
-    }
+function sleep(ms) {
+  return new Promise(resolve => {
+    setTimeout(() => {
+      resolve();
+    }, ms);
   });
-});
+}
 
 function createPairGraph(tickerCalls) {
   return tickerCalls.reduce((accum, call) => {
@@ -93,24 +94,44 @@ const walkTriangles = triangles => {
 }
 
 async function listMajors(auth) {
-  const sheetValues = await getSheetValues({
-    auth,
-    spreadsheetId,
-    range: bitstampCurrencyCells,
-  })
 
-  const currencyPairs = sheetValues.values;
+  const pairsResponse = await request(exchange.pairsURL);
+ const pairs = pairsResponse.body.map(exchange.pairsToSymbolsMap);
+  // const pairs = ["rrtusd", "rrtbtc", "btcusd"];
+  let tickerCalls = [];
+  for(var i=0; i<pairs.length; i++) {
+    const url = exchange.tickerBaseURL + pairs[i] + '/';
+    console.log('Pulling data for: ' + pairs[i]);
+    let response;
+    try {
+      response = await request(url);
+      tickerCalls.push({
+        pair: pairs[i],
+        ask: response.body.ask,
+        bid: response.body.bid,
+        body: response.body,
+      });
+    }
+    catch(e) {
+      console.log('Missed for ' + pairs[i]);
+      console.log(e);
+    }
+    await sleep(1000);
+  }
 
-  const tickerCalls = await Promise.all(currencyPairs.map(async pair => {
-    const url = baseURL + pair[0] + '/';
-    const response = await request(url);
-    return {
-      pair: pair[0],
-      ask: response.body.ask,
-      bid: response.body.bid,
-      body: response.body,
-    };
-  }));
+  // return;
+  // const tickerCalls = await Promise.all(pairs.map(async pair => {
+  //   const url = exchange.tickerBaseURL + pair + '/';
+  //   await sleep(1000 + (Math.random() * 20000));
+  //   console.log('Pulling data for: ' + pair);
+  //   const response = await request(url);
+  //   return {
+  //     pair: pair,
+  //     ask: response.body.ask,
+  //     bid: response.body.bid,
+  //     body: response.body,
+  //   };
+  // }));
 
   const graph = createPairGraph(tickerCalls);
   const triangles = makeTriangles(graph);
@@ -121,23 +142,10 @@ async function listMajors(auth) {
   });
 
   const goodResultsAfterFee = _.mapValues(goodResults, result => {
-    return result * 0.9975 * 0.9975 * 0.9975;
+    return result * exchange.fee * exchange.fee * exchange.fee;
   });
 
-  console.log(JSON.stringify(goodResultsAfterFee, null, 2));
-
-  // const cellUpdates = tickerCalls.map(t => t.body.last);
-
-  // setSheetValues({
-  //   auth,
-  //   spreadsheetId: spreadsheetId,
-  //   range: bitstampCurrencyValueCells,
-  //   valueInputOption: 'USER_ENTERED',
-  //   resource: {
-  //     majorDimension: 'COLUMNS',
-  //     values: [cellUpdates]
-  //   }
-  // });
+  console.log(JSON.stringify(results, null, 2));
 
 }
 
