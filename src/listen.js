@@ -37,42 +37,47 @@ const wsConfig = {
 const activeChannels = {};
 
 function compareForPair(pairStateOne, pairStateTwo) {
-  console.log(`Comparing ${pairStateOne.exchange.name} and ${pairStateTwo.exchange.name}`);
+  const result = [{
+    buyFrom: pairStateOne.exchange.name,
+    sellTo: pairStateTwo.exchange.name,
+  }, {
+    buyFrom: pairStateTwo.exchange.name,
+    sellTo: pairStateOne.exchange.name,
+  }];
   const stateOne =  pairStateOne.state;
   const stateTwo =  pairStateTwo.state;
-  if(!stateOne) {
-    console.log(`No pair data for ${pairStateOne.exchange.name}`);
-    return;
+  if(stateOne && stateTwo) {
+    const feesOne = Fees[pairStateOne.exchange.name].fee;
+    const feesTwo = Fees[pairStateTwo.exchange.name].fee;
+    const buy1Sell2 = ((stateTwo.bidPrice * feesTwo) - stateOne.askPrice) * feesOne;
+    const buy2Sell1 = ((stateOne.bidPrice * feesOne) - stateTwo.askPrice) * feesTwo;
+    result[0].weight = buy1Sell2/stateOne.askPrice*100;
+    result[1].weight = buy2Sell1/stateTwo.askPrice*100
   }
-  if(!stateTwo) {
-    console.log(`No pair data for ${pairStateTwo.exchange.name}`);
-    return;
-  }
-  const feesOne = Fees[pairStateOne.exchange.name].fee;
-  const feesTwo = Fees[pairStateTwo.exchange.name].fee;
-  const buy1Sell2 = ((stateTwo.bidPrice * feesTwo) - stateOne.askPrice) * feesOne;
-  const buy2Sell1 = ((stateOne.bidPrice * feesOne) - stateTwo.askPrice) * feesTwo;
-
-  console.log(`Buy ${pairStateOne.exchange.name} sell ${pairStateTwo.exchange.name}: ${buy1Sell2/stateOne.askPrice*100}`);
-  console.log(`Buy ${pairStateTwo.exchange.name} sell ${pairStateOne.exchange.name}: ${buy2Sell1/stateTwo.askPrice*100}`);
+  return result;
 }
 
 function calcBoth(pair, globalState) {
-  console.log();
-  console.log(`${pair}:`);
   const statesForPair = exchanges.map(exchange => {
     return {
       exchange,
       state: globalState[exchange.name][pair]
     };
   });
+  let pairResults = [];
   for(let i = 0; i < statesForPair.length - 1; i++) {
     for(let j = i + 1; j < statesForPair.length; j++) {
       const pairStateOne = statesForPair[i];
       const pairStateTwo = statesForPair[j];
-      compareForPair(pairStateOne, pairStateTwo);
+      pairResults = pairResults.concat(compareForPair(pairStateOne, pairStateTwo));
     }
   }
+  updatePairGlobal(pair, pairResults);
+}
+
+function updatePairGlobal(pair, pairResults) {
+  window.globalPairs[pair] = pairResults;
+  window.hackRerender && window.hackRerender(window.globalPairs);
 }
 
 function startWSExchange(exchangeName, messageUpdatedCallback, globalState) {
@@ -88,7 +93,6 @@ function startWSExchange(exchangeName, messageUpdatedCallback, globalState) {
       }));
     });
   }
-
 
   wss.onmessage = (msg) => {
     const data = JSON.parse(msg.data);
@@ -139,9 +143,9 @@ function startPusherExchange(exchangeName, messageUpdatedCallback, globalState) 
   });
 }
 
-module.exports = globalState => {
+module.exports = (globalState, globalPairs) => {
   console.log('Starting');
   exchanges.forEach(exchange => {
-    exchange.adapter(exchange.name, calcBoth, globalState);
+    exchange.adapter(exchange.name, calcBoth, globalState, globalPairs);
   });
 }

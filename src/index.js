@@ -9,9 +9,10 @@ const listen = require('./listen');
 
 let store = createStore(reducer)
 
-let globalState = {};
+window.globalState = {};
+window.globalPairs = {};
 
-listen(globalState);
+listen(window.globalState, window.globalPairs);
 
 render(
   <Provider store={store}>
