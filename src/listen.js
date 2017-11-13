@@ -1,3 +1,5 @@
+import helpers from './helpers';
+
 const Pusher = require('pusher-js');
 // const WebSocket = require('ws');
 const _ = require('lodash');
@@ -78,6 +80,12 @@ function calcBoth(pair, globalState) {
 function updatePairGlobal(pair, pairResults) {
   window.globalPairs[pair] = pairResults;
   window.hackRerender && window.hackRerender(window.globalPairs);
+  const graph = helpers.createPairGraph(globalState);
+  const cycleLength = 3;
+  const cycles = helpers.makeCycles(graph, cycleLength);
+  const cycleResults = helpers.walkCycles(cycles, cycleLength);
+  const finalCycleResults = helpers.filterDupCycles(cycleResults, cycleLength);
+  window.hackRerender2 && window.hackRerender2(finalCycleResults);
 }
 
 function startWSExchange(exchangeName, messageUpdatedCallback, globalState) {

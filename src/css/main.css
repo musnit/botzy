@@ -1,0 +1,12 @@
+.app-container {
+  display: flex;
+  flex-direction: row;
+}
+
+.global-state {
+  padding: 10px;
+}
+
+.triangle-results {
+  padding: 10px;
+}

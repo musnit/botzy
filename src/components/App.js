@@ -2,7 +2,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { createStore } from 'redux';
 
-class Stats extends React.Component {
+class App extends React.Component {
 
   constructor(props) {
     super(props);
@@ -10,23 +10,45 @@ class Stats extends React.Component {
   }
 
   componentDidMount() {
-    window.hackRerender = this.setState.bind(this);
+    window.hackRerender = this.hackRerender.bind(this);
+    window.hackRerender2 = this.hackRerender2.bind(this);
+  }
+
+  hackRerender(globalState) {
+    this.setState({ globalState });
+  }
+
+  hackRerender2(triangleResults) {
+    this.setState({ triangleResults });
   }
 
   render() {
-    const pairs = Object.keys(this.state);
-    return <div>
-      {pairs.map(pair => <div key={pair}>
-        <div>{pair}</div>
-        {(!this.state[pair][0].weight || !this.state[pair][1].weight)? 'No pair data for this pair' :
-          this.state[pair].map((item, index) => {
-            return <div key={index}>{
-              `Buy ${pair.slice(0,3)} ${item.buyFrom} sell into ${pair.slice(3)} ${item.sellTo}: ${item.weight}`
-            }</div>
-          })
-        }
-        <br />
-      </div>)}
+    const globalState = this.state.globalState || {};
+    const pairs = Object.keys(globalState);
+    const triangleResults = this.state.triangleResults || {};
+    const trips = Object.keys(triangleResults);
+    return <div className='app-container'>
+      <div className='global-state'>
+        {pairs.map(pair => <div key={pair}>
+          <div>{pair}</div>
+          {(!globalState[pair][0].weight || !globalState[pair][1].weight)? 'No pair data for this pair' :
+            globalState[pair].map((item, index) => {
+              return <div key={index}>{
+                `Buy ${pair.slice(0,3)} ${item.buyFrom} sell into ${pair.slice(3)} ${item.sellTo}: ${item.weight}`
+              }</div>
+            })
+          }
+          <br />
+        </div>)}
+      </div>
+      <div className='triangle-results'>
+        {trips.map(trip => {
+          const tripText = trip.split('_').join(' -> ');
+          return <div key={trip}>
+            <div>{`${tripText}: ${triangleResults[trip]}`}</div>
+          </div>
+        })}
+      </div>
     </div>;
   }
 
@@ -38,10 +60,10 @@ const mapStateToProps = (state) => {
   }
 }
 
-const ConnectedStats = connect(
+const ConnectedApp = connect(
   mapStateToProps,
   undefined
-)(Stats)
+)(App)
 
 
-module.exports = ConnectedStats;
+module.exports = ConnectedApp;
