@@ -1,7 +1,10 @@
 function createPairGraph(globalState) {
-  const bitfinexState = globalState.bitfinex;
+  const bitfinexState = globalState.bitstamp;
   const pairs = Object.keys(bitfinexState);
   const pairGraph = pairs.reduce((accum, pair) => {
+    if(!bitfinexState[pair].bidPrice) {
+      return accum;
+    }
     const currency1 = pair.slice(0,3);
     const currency2 = pair.slice(3);
     accum[currency1] = accum[currency1] || {};
@@ -104,9 +107,15 @@ const filterDupCycles = (cycles, length) => {
   return finalTriangles;
 };
 
+const applyFees = (cycles, length) => {
+  const fee = 0.998;
+  return _.mapValues(cycles, weight => weight * Math.pow(fee, length - 1));
+}
+
 module.exports = {
   createPairGraph,
   walkCycles,
   makeCycles,
+  applyFees,
   filterDupCycles
 };

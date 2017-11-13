@@ -85,7 +85,8 @@ function updatePairGlobal(pair, pairResults) {
   const cycles = helpers.makeCycles(graph, cycleLength);
   const cycleResults = helpers.walkCycles(cycles, cycleLength);
   const finalCycleResults = helpers.filterDupCycles(cycleResults, cycleLength);
-  window.hackRerender2 && window.hackRerender2(finalCycleResults);
+  const finalCycleResultsAfterFees = helpers.applyFees(finalCycleResults, cycleLength);
+  window.hackRerender2 && window.hackRerender2(finalCycleResultsAfterFees);
 }
 
 function startWSExchange(exchangeName, messageUpdatedCallback, globalState) {

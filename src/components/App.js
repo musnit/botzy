@@ -18,15 +18,16 @@ class App extends React.Component {
     this.setState({ globalState });
   }
 
-  hackRerender2(triangleResults) {
-    this.setState({ triangleResults });
+  hackRerender2(cycleResults) {
+    this.setState({ cycleResults });
   }
 
   render() {
     const globalState = this.state.globalState || {};
     const pairs = Object.keys(globalState);
-    const triangleResults = this.state.triangleResults || {};
-    const trips = Object.keys(triangleResults);
+    const cycleResults = this.state.cycleResults || {};
+    const mappedCycleResults = _.map(cycleResults, (value, key) => ({ text: key, weight: value }));
+    const sortedCycleResults = _.sortBy(mappedCycleResults, 'weight').reverse();
     return <div className='app-container'>
       <div className='global-state'>
         {pairs.map(pair => <div key={pair}>
@@ -42,10 +43,10 @@ class App extends React.Component {
         </div>)}
       </div>
       <div className='triangle-results'>
-        {trips.map(trip => {
-          const tripText = trip.split('_').join(' -> ');
-          return <div key={trip}>
-            <div>{`${tripText}: ${triangleResults[trip]}`}</div>
+        {sortedCycleResults.map(cycle => {
+          const cycleText = cycle.text.split('_').join(' -> ');
+          return <div key={cycle.text}>
+            <div>{`${cycleText}: ${cycle.weight} ${(cycle.weight - 1) * 100}%`}</div>
           </div>
         })}
       </div>
