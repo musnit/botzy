@@ -25,11 +25,9 @@ class App extends React.Component {
   render() {
     const globalState = this.state.globalState || {};
     const pairs = Object.keys(globalState);
-    const cycleResults = this.state.cycleResults || {};
-    const mappedCycleResults = _.map(cycleResults, (value, key) => ({ text: key, weight: value }));
-    const sortedCycleResults = _.sortBy(mappedCycleResults, 'weight').reverse();
+    const cycles = this.state.cycleResults || [];
     return <div className='app-container'>
-      <div className='global-state'>
+      {/* <div className='global-state'>
         {pairs.map(pair => <div key={pair}>
           <div>{pair}</div>
           {(!globalState[pair][0].weight || !globalState[pair][1].weight)? 'No pair data for this pair' :
@@ -41,12 +39,25 @@ class App extends React.Component {
           }
           <br />
         </div>)}
-      </div>
+      </div> */}
       <div className='triangle-results'>
-        {sortedCycleResults.map(cycle => {
-          const cycleText = cycle.text.split('_').join(' -> ');
-          return <div key={cycle.text}>
-            <div>{`${cycleText}: ${cycle.weight} ${(cycle.weight - 1) * 100}%`}</div>
+        {cycles.map(cycle => {
+          const posi = cycle.weight > 1;
+          return <div style={{ backgroundColor: posi? '#9fff9f' : '#ffb4b4' }} key={cycle.text}>
+            <div>
+              <span className='cycle-heartbeats'>
+                {cycle.heartbeats.map((h, index) => {
+                  const timePassed = Math.min(h/2000, 1) * 240;
+                  const r = parseInt(timePassed);
+                  const g = parseInt(240 - timePassed);
+                  return <span key={index}
+                    className='cycle-heartbeat'
+                    style={{ backgroundColor: `rgba(${r}, ${g}, 0, 1)` }} >
+                  </span>;
+                })}
+              </span>
+              {`${cycle.text}: ${cycle.weight} ${(cycle.weight - 1) * 100}%`}
+            </div>
           </div>
         })}
       </div>

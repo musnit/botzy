@@ -10,3 +10,19 @@
 .triangle-results {
   padding: 10px;
 }
+
+.cycle-heartbeats {
+  padding-left: 10px;
+  padding-right: 10px;
+  min-width: 40px;
+  display: inline-flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.cycle-heartbeat {
+  min-width: 10px;
+  height: 10px;
+  border-radius: 5px;
+  display: inline-block;
+}

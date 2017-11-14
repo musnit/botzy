@@ -1,8 +1,8 @@
-function createPairGraph(globalState) {
-  const bitfinexState = globalState.bitstamp;
-  const pairs = Object.keys(bitfinexState);
+function createPairGraphForExchange(globalState, exchange) {
+  const exchangeState = globalState[exchange];
+  const pairs = Object.keys(exchangeState);
   const pairGraph = pairs.reduce((accum, pair) => {
-    if(!bitfinexState[pair].bidPrice) {
+    if(!exchangeState[pair].bidPrice) {
       return accum;
     }
     const currency1 = pair.slice(0,3);
@@ -11,8 +11,8 @@ function createPairGraph(globalState) {
     accum[currency2] = accum[currency2] || {};
     accum[currency1].pairs = accum[currency1].pairs || {};
     accum[currency2].pairs = accum[currency2].pairs || {};
-    accum[currency1].pairs[currency2] = { convert: bitfinexState[pair].bidPrice };
-    accum[currency2].pairs[currency1] = { convert: 1/bitfinexState[pair].askPrice };
+    accum[currency1].pairs[currency2] = { convert: _ => exchangeState[pair].bidPrice };
+    accum[currency2].pairs[currency1] = { convert: _ => 1/exchangeState[pair].askPrice };
     return accum;
   }, {});
   return pairGraph;
@@ -46,7 +46,7 @@ const makeNextPairs = (pairs, graph, currencyCodes, currentCycleLength, length) 
       nextPairs = removeDeadendPairs(nextPairs);
     }
     return {
-      convert: graph[lastCurrencyCode].pairs[currentCurrencyCode].convert,
+      convert: _ => graph[lastCurrencyCode].pairs[currentCurrencyCode].convert(),
       pairs: nextPairs
     };
   });
@@ -58,7 +58,7 @@ const makeCycles = (graph, length) => {
     const currencyCodes = [startingCurrencyCode];
     nextPairs = makeNextPairs(nextPairs, graph, currencyCodes, 2, length);
     return {
-      convert: 1,
+      convert: _ => 1,
       pairs: nextPairs
     };
   });
@@ -66,7 +66,7 @@ const makeCycles = (graph, length) => {
 
 const walkNextEdge = (lastNode, currencyFlow, convertedValue, accum, cycleLength, currentWalkLength) => {
   _.map(lastNode.pairs, (currentNode, currentCurrencyCode) => {
-    const nextConvertedValue = convertedValue * parseFloat(currentNode.convert);
+    const nextConvertedValue = convertedValue * parseFloat(currentNode.convert());
     if (currentWalkLength === cycleLength) {
       accum[currencyFlow] = nextConvertedValue;
     }
@@ -107,13 +107,12 @@ const filterDupCycles = (cycles, length) => {
   return finalTriangles;
 };
 
-const applyFees = (cycles, length) => {
-  const fee = 0.998;
+const applyFees = (cycles, length, fee) => {
   return _.mapValues(cycles, weight => weight * Math.pow(fee, length - 1));
 }
 
 module.exports = {
-  createPairGraph,
+  createPairGraphForExchange,
   walkCycles,
   makeCycles,
   applyFees,

@@ -58,7 +58,11 @@ const PAIRS = [
   'btgbtc',
   'datusd',
   'datbtc',
-  'dateth'
+  'dateth',
+  'xrpeur',
+  'etheur',
+  'ltceur',
+  'eurusd',
 ];
 
 module.exports = PAIRS;

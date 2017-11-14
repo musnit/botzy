@@ -6,37 +6,21 @@ const _ = require('lodash');
 
 const Paircodes = require('./config/paircodes');
 const PAIRS = require('./config/pairs');
+const EXCHANGES = require('./config/exchanges');
 
 const InvertedPaircodes = _.mapValues(Paircodes, codes => _.invert(codes));
 
 const Fees = require('./config/fees');
 
-const exchanges = [
-  {
-    name: 'bitfinex',
-    adapter: startWSExchange
-  },
-  {
-    name: 'bitstamp',
-    adapter: startPusherExchange
-  }
-];
-
-const wsConfig = {
-  bitfinex: {
-    wsURL: 'wss://api.bitfinex.com/ws/',
-    channelName: 'ticker',
-    eventName: 'subscribe',
-    pairName: pair => Paircodes.bitfinex[pair]
-  },
-  bitstamp: {
-    pusherAppKey: 'de504dc5763aeef9ff52',
-    eventName: 'data',
-    channelName: pair => `order_book${Paircodes.bitstamp[pair]}`
-  }
-}
+const adapters = {
+  ws: startWSExchange,
+  pusher: startPusherExchange
+};
 
 const activeChannels = {};
+const globalHeartbeats = {};
+
+const exchangeTodo = 'bitfinex';
 
 function compareForPair(pairStateOne, pairStateTwo) {
   const result = [{
@@ -60,7 +44,9 @@ function compareForPair(pairStateOne, pairStateTwo) {
 }
 
 function calcBoth(pair, globalState) {
-  const statesForPair = exchanges.map(exchange => {
+  const exchangeKeys = Object.keys(EXCHANGES);
+  const statesForPair = exchangeKeys.map(exchangeKey => {
+    const exchange = EXCHANGES[exchangeKey];
     return {
       exchange,
       state: globalState[exchange.name][pair]
@@ -77,28 +63,59 @@ function calcBoth(pair, globalState) {
   updatePairGlobal(pair, pairResults);
 }
 
-function updatePairGlobal(pair, pairResults) {
-  window.globalPairs[pair] = pairResults;
-  window.hackRerender && window.hackRerender(window.globalPairs);
-  const graph = helpers.createPairGraph(globalState);
-  const cycleLength = 3;
+window.cycles = undefined;
+
+function findCycles(cycleLength) {
+  const graph = helpers.createPairGraphForExchange(globalState, exchangeTodo);
   const cycles = helpers.makeCycles(graph, cycleLength);
-  const cycleResults = helpers.walkCycles(cycles, cycleLength);
+  return cycles;
+}
+
+function makeHeartbeats(key) {
+  const keys = key.split('_');
+  const heartbeats = keys.map((key, index) => {
+    const nextIndex = (index + 1) % keys.length;
+    const pair1 = key.concat(keys[nextIndex]);
+    const pair2 = keys[nextIndex].concat(key);
+    const heartbeat = globalHeartbeats[exchangeTodo][pair2] || globalHeartbeats[exchangeTodo][pair1];
+    return Date.now() - heartbeat;
+  });
+  return heartbeats;
+}
+
+function addHeartbeats(cycleResults = {}) {
+  return _.map(cycleResults, (value, key) => ({
+    text: key.split('_').join(' -> '),
+    weight: value,
+    heartbeats: makeHeartbeats(key)
+  }));
+}
+
+function updatePairGlobal(pair, pairResults) {
+  // window.globalPairs[pair] = pairResults;
+  // window.hackRerender && window.hackRerender(window.globalPairs);
+  const cycleLength = 3;
+  const cycleResults = helpers.walkCycles(window.cycles, cycleLength);
   const finalCycleResults = helpers.filterDupCycles(cycleResults, cycleLength);
-  const finalCycleResultsAfterFees = helpers.applyFees(finalCycleResults, cycleLength);
-  window.hackRerender2 && window.hackRerender2(finalCycleResultsAfterFees);
+  const finalCycleResultsAfterFees = helpers.applyFees(finalCycleResults, cycleLength, 0.998);
+  const finalCycleResultsAfterFeesWithHeartbeats = addHeartbeats(finalCycleResultsAfterFees);
+  const sortedCycleResults = _.sortBy(finalCycleResultsAfterFeesWithHeartbeats, 'weight').reverse();
+  window.hackRerender2 && window.hackRerender2(sortedCycleResults);
 }
 
 function startWSExchange(exchangeName, messageUpdatedCallback, globalState) {
-  const wss = new WebSocket(wsConfig[exchangeName].wsURL);
+  console.log(exchangeName)
+  const wsConfig = EXCHANGES[exchangeName].adapterConfig;
+  const wss = new WebSocket(wsConfig.wsURL);
   globalState[exchangeName] = {};
   wss.onopen = () => {
     activeChannels[exchangeName] = {};
+    globalHeartbeats[exchangeName] = {};
     PAIRS.forEach(pair => {
       wss.send(JSON.stringify({
-        event: wsConfig[exchangeName].eventName,
-        channel: wsConfig[exchangeName].channelName,
-        pair: wsConfig[exchangeName].pairName(pair)
+        event: wsConfig.eventName,
+        channel: wsConfig.channelName,
+        pair: wsConfig.pairNameMapping(pair)
       }));
     });
   }
@@ -116,11 +133,13 @@ function startWSExchange(exchangeName, messageUpdatedCallback, globalState) {
       const normalizedPair = InvertedPaircodes[exchangeName][data.pair];
       activeChannels[exchangeName][data.chanId] = normalizedPair;
       globalState[exchangeName][normalizedPair] = {};
+      const cycleLength = 3;
+      window.cycles = findCycles(cycleLength);
       return;
     }
     if (data[1] === 'hb') {
-      // console.log(`${exchangeName} heartbeat`);
-      // console.log();
+      // console.log(`${exchangeName} heartbeat on channel ${data[0]} for pair ${activeChannels[exchangeName][data[0]]}`);
+      globalHeartbeats[exchangeName][activeChannels[exchangeName][data[0]]] = Date.now();
       return;
     }
     const channel = data[0];
@@ -129,20 +148,22 @@ function startWSExchange(exchangeName, messageUpdatedCallback, globalState) {
     globalState[exchangeName][pair].bidSize = data[2];
     globalState[exchangeName][pair].askPrice = data[3];
     globalState[exchangeName][pair].askSize = data[4];
+    globalHeartbeats[exchangeName][activeChannels[exchangeName][data[0]]] = Date.now();
     messageUpdatedCallback(pair, globalState);
   };
 }
 
 function startPusherExchange(exchangeName, messageUpdatedCallback, globalState) {
-  const socket = new Pusher(wsConfig[exchangeName].pusherAppKey, {
+  const wsConfig = EXCHANGES[exchangeName].adapterConfig;
+  const socket = new Pusher(wsConfig.pusherAppKey, {
   });
   globalState[exchangeName] = {};
 
   PAIRS.forEach(pair => {
-    const channel = socket.subscribe(wsConfig[exchangeName].channelName(pair));
+    const channel = socket.subscribe(wsConfig.channelNameMapping(pair));
     globalState[exchangeName][pair] = {};
 
-    channel.bind(wsConfig[exchangeName].eventName, data => {
+    channel.bind(wsConfig.eventName, data => {
       globalState[exchangeName][pair].bidPrice = data.bids[0][0];
       globalState[exchangeName][pair].bidSize = data.bids[0][1];
       globalState[exchangeName][pair].askPrice = data.asks[0][0];
@@ -154,7 +175,10 @@ function startPusherExchange(exchangeName, messageUpdatedCallback, globalState) 
 
 module.exports = (globalState, globalPairs) => {
   console.log('Starting');
-  exchanges.forEach(exchange => {
-    exchange.adapter(exchange.name, calcBoth, globalState, globalPairs);
+  const exchangeKeys = Object.keys(EXCHANGES);
+  exchangeKeys.forEach(exchangeKey => {
+    const exchange = EXCHANGES[exchangeKey];
+    const adapter = adapters[exchange.adapter];
+    adapter(exchange.name, calcBoth, globalState, globalPairs);
   });
 }
