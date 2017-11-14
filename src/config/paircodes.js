@@ -62,17 +62,17 @@ const PAIRCODES = {
     "dateth": "DATETH"
   },
   bitstamp: {
-    btcusd: '',
-    ltcusd: '_ltcusd',
-    ethusd: '_ethusd',
-    xrpusd: '_xrpusd',
-    eurusd: '_eurusd',
-    xrpbtc: '_xrpbtc',
-    ethbtc: '_ethbtc',
-    ltcbtc: '_ltcbtc',
-    xrpeur: '_xrpeur',
-    etheur: '_etheur',
-    ltceur: '_ltceur',
+    btcusd: 'order_book',
+    ltcusd: 'order_book_ltcusd',
+    ethusd: 'order_book_ethusd',
+    xrpusd: 'order_book_xrpusd',
+    eurusd: 'order_book_eurusd',
+    xrpbtc: 'order_book_xrpbtc',
+    ethbtc: 'order_book_ethbtc',
+    ltcbtc: 'order_book_ltcbtc',
+    xrpeur: 'order_book_xrpeur',
+    etheur: 'order_book_etheur',
+    ltceur: 'order_book_ltceur',
   }
 };
 

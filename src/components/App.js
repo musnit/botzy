@@ -1,6 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { createStore } from 'redux';
+import { Helmet } from 'react-helmet';
 
 class App extends React.Component {
 
@@ -26,7 +27,11 @@ class App extends React.Component {
     const globalState = this.state.globalState || {};
     const pairs = Object.keys(globalState);
     const cycles = this.state.cycleResults || [];
+    const wins = cycles.reduce((accum, c) => accum + (c.weight > 1? 1 : 0), 0);
     return <div className='app-container'>
+      <Helmet>
+        <title>{`${wins? `(${wins})` : ''} Botzy`}</title>
+      </Helmet>
       {/* <div className='global-state'>
         {pairs.map(pair => <div key={pair}>
           <div>{pair}</div>

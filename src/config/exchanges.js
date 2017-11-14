@@ -17,7 +17,7 @@ const EXCHANGES = {
     adapterConfig: {
       pusherAppKey: 'de504dc5763aeef9ff52',
       eventName: 'data',
-      channelNameMapping: pair => `order_book${Paircodes.bitstamp[pair]}`
+      channelNameMapping: pair => Paircodes.bitstamp[pair]
     }
   }
 };

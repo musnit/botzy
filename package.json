@@ -26,6 +26,7 @@
     "pusher-js": "^4.2.1",
     "react": "^16.1.0",
     "react-dom": "^16.1.0",
+    "react-helmet": "^5.2.0",
     "react-redux": "^5.0.6",
     "redux": "^3.7.2",
     "redux-devtools": "^3.4.1",
