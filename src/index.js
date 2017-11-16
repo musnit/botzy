@@ -16,6 +16,10 @@ window.globalPairs = {};
 
 listen(window.globalState, window.globalPairs);
 
+window.hackRerender3 = _ => {
+  console.log(_);
+}
+
 render(
   <Provider store={store}>
     <App />

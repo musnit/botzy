@@ -1,0 +1,31 @@
+const CURRENCIES = [
+  "btc",
+  "usd",
+  "ltc",
+  "eth",
+  "etc",
+  "rrt",
+  "zec",
+  "xmr",
+  "dsh",
+  "bcc",
+  "bcu",
+  "xrp",
+  "iot",
+  "eos",
+  "san",
+  "omg",
+  "bch",
+  "neo",
+  "etp",
+  "qtm",
+  "bt1",
+  "bt2",
+  "avt",
+  "edo",
+  "btg",
+  "dat",
+  "eur"
+];
+
+module.exports = CURRENCIES;

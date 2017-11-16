@@ -108,7 +108,7 @@ const filterDupCycles = (cycles, length) => {
 };
 
 const applyFees = (cycles, length, fee) => {
-  return _.mapValues(cycles, weight => weight * Math.pow(fee, length - 1));
+  return _.mapValues(cycles, weight => weight * Math.pow(fee, length));
 }
 
 module.exports = {

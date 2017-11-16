@@ -3,6 +3,8 @@ import { connect } from 'react-redux';
 import { createStore } from 'redux';
 import { Helmet } from 'react-helmet';
 
+import Cytoscape from './Cytoscape';
+
 class App extends React.Component {
 
   constructor(props) {
@@ -45,6 +47,7 @@ class App extends React.Component {
           <br />
         </div>)}
       </div> */}
+      <Cytoscape />
       <div className='triangle-results'>
         {cycles.map(cycle => {
           const posi = cycle.weight > 1;
@@ -71,10 +74,9 @@ class App extends React.Component {
 
 }
 
-const mapStateToProps = (state) => {
+const mapStateToProps = state => {
   return {
-    todos: state.todos
-  }
+  };
 }
 
 const ConnectedApp = connect(
