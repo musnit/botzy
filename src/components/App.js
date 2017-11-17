@@ -16,7 +16,7 @@ class App extends React.Component {
   }
 
   componentDidMount() {
-    // this.props.listen(this.state.activeExchanges);
+    this.props.listen(this.state.activeExchanges);
   }
 
   render() {

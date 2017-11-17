@@ -34,7 +34,7 @@ const makeNextPairs = (pairs, graph, currencyCodes, currentCycleLength, length) 
   });
 };
 
-const maxDistance = 2;
+const maxDistance = 3;
 const findCyclesFromNode = (startingNode, path, cycles) => {
   const previousNode = path.length === 0? startingNode : path[path.length - 1].target();
   const nextEdges = previousNode.outgoers(e => e.isEdge());
@@ -46,7 +46,7 @@ const findCyclesFromNode = (startingNode, path, cycles) => {
     const newPath = path.concat(edge);
 
     if (target === startingNode) {
-      cycles.push(newPath);
+      cycles.push({ path: newPath });
       return;
     }
     else if (newPath.length === maxDistance) {
