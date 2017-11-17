@@ -1,7 +1,7 @@
 import Paircodes from 'config/paircodes';
 
-const EXCHANGES = {
-  bitfinex: {
+const EXCHANGES = [
+  {
     name: 'bitfinex',
     adapter: 'ws',
     adapterConfig: {
@@ -11,15 +11,15 @@ const EXCHANGES = {
       pairNameMapping: pair => Paircodes.bitfinex[pair]
     }
   },
-  bitstamp: {
+{
     name: 'bitstamp',
     adapter: 'pusher',
     adapterConfig: {
       pusherAppKey: 'de504dc5763aeef9ff52',
       eventName: 'data',
-      channelNameMapping: pair => Paircodes.bitstamp[pair]
+      pairNameMapping: pair => Paircodes.bitstamp[pair]
     }
   }
-};
+];
 
 module.exports = EXCHANGES;

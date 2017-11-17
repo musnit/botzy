@@ -4,6 +4,7 @@ import _ from 'lodash';
 
 import CURRENCIES from 'config/currencies';
 import config from 'config/cyto';
+import { createEdgesForExchanges, findCyclesForGraph } from 'helpers';
 
 const nodes = CURRENCIES.map(currency => ({ data: { id: currency } }));
 const nodesByCurrency = _.keyBy(nodes, node => node.data.id);
@@ -11,8 +12,8 @@ nodesByCurrency.btc.renderedPosition = { x: 10000, y: 10000 };
 nodesByCurrency.btc.position = { x: 10000, y: 10000 };
 
 let cyStyle = {
-  height: '400px',
-  width: '600px',
+  height: '1200px',
+  width: '1200px',
   display: 'block'
 };
 
@@ -26,11 +27,10 @@ class Cytoscape extends Component{
       { container: this.refs.cyElement }
     );
     this.cy = cytoscape(this.baseConfig);
-    window.addEdges = this.addEdges;
-  }
-
-  addEdges = newEdges => {
-    this.cy.add(newEdges);
+    const edges = createEdgesForExchanges(this.props.activeExchanges);
+    this.cy.add(edges);
+    const cycles = findCyclesForGraph(this.cy);
+    console.log(cycles.map(edges=>edges.map(e => e.data('id'))));
   }
 
   shouldComponentUpdate() {
@@ -38,7 +38,6 @@ class Cytoscape extends Component{
   }
 
   componentWillReceiveProps(nextProps) {
-    this.cy.json(nextProps);
   }
 
   componentWillUnmount() {

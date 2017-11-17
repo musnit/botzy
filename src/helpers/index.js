@@ -1,22 +1,4 @@
-function createPairGraphForExchange(globalState, exchange) {
-  const exchangeState = globalState[exchange];
-  const pairs = Object.keys(exchangeState);
-  const pairGraph = pairs.reduce((accum, pair) => {
-    if(!exchangeState[pair].bidPrice) {
-      return accum;
-    }
-    const currency1 = pair.slice(0,3);
-    const currency2 = pair.slice(3);
-    accum[currency1] = accum[currency1] || {};
-    accum[currency2] = accum[currency2] || {};
-    accum[currency1].pairs = accum[currency1].pairs || {};
-    accum[currency2].pairs = accum[currency2].pairs || {};
-    accum[currency1].pairs[currency2] = { convert: _ => exchangeState[pair].bidPrice };
-    accum[currency2].pairs[currency1] = { convert: _ => 1/exchangeState[pair].askPrice };
-    return accum;
-  }, {});
-  return pairGraph;
-}
+export createEdgesForExchanges from './create-edges-for-exchanges';
 
 const removePairsWithCodes = (pairs, codes) => _.omitBy(pairs, (pair, filterKey) => {
   const match = codes.includes(filterKey);
@@ -52,16 +34,39 @@ const makeNextPairs = (pairs, graph, currencyCodes, currentCycleLength, length) 
   });
 };
 
-const makeCycles = (graph, length) => {
-  return _.mapValues(graph, (_, startingCurrencyCode) => {
-    let nextPairs = graph[startingCurrencyCode].pairs;
-    const currencyCodes = [startingCurrencyCode];
-    nextPairs = makeNextPairs(nextPairs, graph, currencyCodes, 2, length);
-    return {
-      convert: _ => 1,
-      pairs: nextPairs
-    };
+const maxDistance = 2;
+const findCyclesFromNode = (startingNode, path, cycles) => {
+  const previousNode = path.length === 0? startingNode : path[path.length - 1].target();
+  const nextEdges = previousNode.outgoers(e => e.isEdge());
+  //check destination of edge - if it is the start, then add it as cycle and stop pursuing this path.
+  //check lenght, if it is too long, then stop pursuing this path
+  //otherwise, span out to new next edges
+  nextEdges.forEach(edge => {
+    const target = edge.target();
+    const newPath = path.concat(edge);
+
+    if (target === startingNode) {
+      cycles.push(newPath);
+      return;
+    }
+    else if (newPath.length === maxDistance) {
+      return;
+    }
+    else {
+      findCyclesFromNode(startingNode, newPath, cycles);
+    }
   });
+}
+
+export const findCyclesForGraph = (graph, length) => {
+  const nodes = graph.nodes();
+  let cycles = [];
+  nodes.reduce(accum => {
+    const firstNode = accum[0];
+    findCyclesFromNode(firstNode, [], cycles);
+    return accum.difference(firstNode);
+  }, nodes);
+  return cycles;
 }
 
 const walkNextEdge = (lastNode, currencyFlow, convertedValue, accum, cycleLength, currentWalkLength) => {
@@ -112,9 +117,7 @@ const applyFees = (cycles, length, fee) => {
 }
 
 export default {
-  createPairGraphForExchange,
   walkCycles,
-  makeCycles,
   applyFees,
   filterDupCycles
 };

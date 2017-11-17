@@ -18,4 +18,5 @@ module.exports = {
       'node_modules'
     ]
   },
+  devtool: 'source-map'
 };

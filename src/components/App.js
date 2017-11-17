@@ -4,25 +4,19 @@ import { createStore } from 'redux';
 import { Helmet } from 'react-helmet';
 
 import Cytoscape from './Cytoscape';
+import EXCHANGES from 'config/exchanges';
 
 class App extends React.Component {
 
   constructor(props) {
     super(props);
-    this.state = {};
+    this.state = {
+      activeExchanges: EXCHANGES,
+    };
   }
 
   componentDidMount() {
-    window.hackRerender = this.hackRerender.bind(this);
-    window.hackRerender2 = this.hackRerender2.bind(this);
-  }
-
-  hackRerender(globalState) {
-    this.setState({ globalState });
-  }
-
-  hackRerender2(cycleResults) {
-    this.setState({ cycleResults });
+    // this.props.listen(this.state.activeExchanges);
   }
 
   render() {
@@ -47,7 +41,7 @@ class App extends React.Component {
           <br />
         </div>)}
       </div> */}
-      <Cytoscape />
+      <Cytoscape activeExchanges={this.state.activeExchanges} />
       <div className='triangle-results'>
         {cycles.map(cycle => {
           const posi = cycle.weight > 1;

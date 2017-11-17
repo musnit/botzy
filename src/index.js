@@ -4,25 +4,16 @@ import { Provider } from 'react-redux'
 import { createStore } from 'redux';
 
 import './css/main.css';
-import reducer from './ducks';
 
-const App = require('./components/App');
-const listen = require('./listen');
+import mainReducer from './ducks';
+import App from './components/App';
+import listen from './listen';
 
-let store = createStore(reducer)
-
-window.globalState = {};
-window.globalPairs = {};
-
-listen(window.globalState, window.globalPairs);
-
-window.hackRerender3 = _ => {
-  console.log(_);
-}
+const store = createStore(mainReducer);
 
 render(
   <Provider store={store}>
-    <App />
+    <App listen={listen} />
   </Provider>,
   document.getElementById('root')
 );

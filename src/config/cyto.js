@@ -27,11 +27,11 @@ const conf =  {
     transform: (node, position) => {
       switch (node.data().id) {
         case 'btc':
-          return { x: 230, y: 150 };
+          return { x: 460, y: 450 };
         case 'eth':
-          return { x: 370, y: 150 };
+          return { x: 740, y: 450 };
         case 'usd':
-          return { x: 300, y: 270 };
+          return { x: 600, y: 710 };
         default:
           return position;
       }
