@@ -7,4 +7,4 @@ const FEES = {
   }
 };
 
-module.exports = FEES;
+export default FEES;

@@ -111,7 +111,7 @@ const applyFees = (cycles, length, fee) => {
   return _.mapValues(cycles, weight => weight * Math.pow(fee, length));
 }
 
-module.exports = {
+export default {
   createPairGraphForExchange,
   walkCycles,
   makeCycles,

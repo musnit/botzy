@@ -1,9 +1,10 @@
-import EXCHANGES from '../config/exchanges';
-import PAIRS from '../config/pairs';
+import EXCHANGES from 'config/exchanges';
+import PAIRS from 'config/pairs';
 
-import WebSocket from '../lib/web-socket';
+import PAIRCODES, { INVERTED_PAIRCODES } from 'config/paircodes';
+import WebSocket from 'lib/web-socket';
 
-export default function startWSExchange(exchangeName, messageUpdatedCallback, globalState) {
+export default function start(exchangeName, messageUpdatedCallback, globalState, activeChannels, globalHeartbeats, setCycles, updateCy) {
   const wsConfig = EXCHANGES[exchangeName].adapterConfig;
   const wss = new WebSocket(wsConfig.wsURL);
   globalState[exchangeName] = {};
@@ -30,7 +31,7 @@ export default function startWSExchange(exchangeName, messageUpdatedCallback, gl
     if(data.event && data.event === 'subscribed') {
       console.log();
       console.log(`${exchangeName} subscribed to channel ${data.channel} for pair ${data.pair} with id ${data.chanId}`);
-      const normalizedPair = InvertedPaircodes[exchangeName][data.pair];
+      const normalizedPair = INVERTED_PAIRCODES[exchangeName][data.pair];
       activeChannels[exchangeName][data.chanId] = normalizedPair;
       globalState[exchangeName][normalizedPair] = {};
       // const cycles = findCycles(cycleLength);
@@ -50,4 +51,4 @@ export default function startWSExchange(exchangeName, messageUpdatedCallback, gl
       return;
     }
   };
-}
+};

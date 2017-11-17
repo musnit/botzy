@@ -76,4 +76,6 @@ const PAIRCODES = {
   }
 };
 
-module.exports = PAIRCODES;
+export default PAIRCODES;
+
+export const INVERTED_PAIRCODES = _.mapValues(PAIRCODES, codes => _.invert(codes));

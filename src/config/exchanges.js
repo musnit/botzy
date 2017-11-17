@@ -1,4 +1,4 @@
-const Paircodes = require('./paircodes');
+import Paircodes from 'config/paircodes';
 
 const EXCHANGES = {
   bitfinex: {

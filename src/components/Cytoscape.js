@@ -2,8 +2,8 @@ import React, {Component} from 'react';
 import cytoscape from 'cytoscape';
 import _ from 'lodash';
 
-import CURRENCIES from '../config/currencies';
-import config from '../config/cyto';
+import CURRENCIES from 'config/currencies';
+import config from 'config/cyto';
 
 const nodes = CURRENCIES.map(currency => ({ data: { id: currency } }));
 const nodesByCurrency = _.keyBy(nodes, node => node.data.id);
