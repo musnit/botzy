@@ -1,4 +1,4 @@
-export createEdgesForExchanges from './create-edges-for-exchanges';
+export { createEdgesForExchanges, createEdgesForPair } from './create-edges-for-exchanges';
 
 const removePairsWithCodes = (pairs, codes) => _.omitBy(pairs, (pair, filterKey) => {
   const match = codes.includes(filterKey);

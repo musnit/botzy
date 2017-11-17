@@ -53,6 +53,7 @@ export default function start(exchange, updateEdges) {
       askPrice: data[3],
       askSize: data[4],
       heartbeat: Date.now(),
+      volume: data[8]
     };
     updateEdges(pair, exchange.name, pairData);
     return;

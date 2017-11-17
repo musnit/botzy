@@ -56,29 +56,41 @@ class Cytoscape extends Component{
       cyclesByEdge,
     };
     window.testUpdates = this.testUpdates;
+    setInterval(this.sortCycles, 1000);
   }
 
   testUpdates = updates => {
     updates.forEach(update => {
-      const edgeToUpdate = this.state.edgesById[update.edgeId];
+      const edgeToUpdate = this.state.edgesById[update.data.id];
       edgeToUpdate.data(update.data);
-      const cyclesToUpdate = this.state.cyclesByEdge[update.edgeId];
+      const cyclesToUpdate = this.state.cyclesByEdge[update.data.id];
       this.updateCycles(cyclesToUpdate);
     });
   }
 
-  updateCycles = cycles => {
-    cycles.forEach(c => {
-      c.win = 2.5;
+  sortCycles = arg => {
+    console.log('starting');
+    const filteredCycles = _.filter(this.state.cycles, cycle => {
+      const someLowVolume = _.some(cycle.path, edge => {
+        return edge.data('volume') < 1000;
+      });
+      return !someLowVolume;
     });
-    this.forceUpdate();
+    const sortedCycles = _.orderBy(filteredCycles, 'result', 'desc');
+    this.setState({ sortedCycles });
+    console.log('done');
+  }
+
+  updateCycles = cycles => {
+    cycles.forEach(cycle => {
+      const result = cycle.path.reduce((accum, edge) => {
+        return accum * parseFloat(edge.data('weight'));
+      }, 1);
+      cycle.result = result;
+    });
   }
 
   componentDidMount() {
-  }
-
-  shouldComponentUpdate() {
-    return false;
   }
 
   componentWillReceiveProps(nextProps) {
@@ -93,11 +105,14 @@ class Cytoscape extends Component{
   }
 
   render() {
-    const cycles = this.state.cycles || [1];
+    const cycles = this.state.sortedCycles || [];
+    const bestCycles = cycles.slice(0,100);
     return <div>
-      <div style={cyStyle} ref="cyElement" />
-      <Cycle cycle={cycles[0]} />
-      <div>{cycles[0].path[0].data('id') }{JSON.stringify(cycles[0].path[0].data())}</div>
+      {/* <div style={cyStyle} ref="cyElement" /> */}
+      <div>
+        {/* {cycles.map((cycle, index) => <Cycle key={index} cycle={cycle} />)} */}
+        {bestCycles.map((cycle, index) => <Cycle key={index} cycle={cycle} />)}
+      </div>
     </div>
   }
 }
@@ -105,9 +120,11 @@ class Cytoscape extends Component{
 class Cycle extends Component {
 
   render() {
+    const { cycle } = this.props;
     return <div>
-      {JSON.stringify(this.props.cycle.path.map(edge => edge.data('id')))}
-      x{this.props.cycle.win}x
+      {cycle.result}&nbsp;&nbsp; {cycle.path.map((edge, index) => <span key={index}>
+        {edge.data('id')} {edge.data('weight')}&nbsp;&nbsp;&nbsp;
+      </span>)}
     </div>
   }
 
