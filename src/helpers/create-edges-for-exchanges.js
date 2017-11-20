@@ -1,4 +1,5 @@
 import PAIRS from 'config/pairs';
+import { EXCHANGES_BY_NAME } from 'config/exchanges';
 
 export const createEdgesForExchanges = exchanges => {
   const edges = exchanges.reduce((accum, exchange) => {
@@ -12,6 +13,7 @@ export const createEdgesForExchanges = exchanges => {
 export const createEdgesForPair = (pair, exchangeName, data = {}) => {
   const currency1 = pair.slice(0, 3);
   const currency2 = pair.slice(3);
+  const exchange = EXCHANGES_BY_NAME[exchangeName];
   const edges = [
     {
       data: {
@@ -23,7 +25,8 @@ export const createEdgesForPair = (pair, exchangeName, data = {}) => {
         weight: data.askPrice,
         depth: data.askSize,
         heartbeat: data.heartbeat,
-        volume: data.volume
+        volume: data.volume,
+        fee: exchange.fees.maker,
       },
     },
     {
@@ -36,7 +39,8 @@ export const createEdgesForPair = (pair, exchangeName, data = {}) => {
         weight: data.bidPrice,
         depth: data.bidSize,
         heartbeat: data.heartbeat,
-        volume: data.volume
+        volume: data.volume,
+        fee: exchange.fees.taker,
       },
     },
     {
@@ -49,7 +53,8 @@ export const createEdgesForPair = (pair, exchangeName, data = {}) => {
         weight: 1/data.bidPrice,
         depth: data.bidSize,
         heartbeat: data.heartbeat,
-        volume: data.volume
+        volume: data.volume,
+        fee: exchange.fees.maker,
       }
     },
     {
@@ -62,7 +67,8 @@ export const createEdgesForPair = (pair, exchangeName, data = {}) => {
         weight: 1/data.askPrice,
         depth: data.askSize,
         heartbeat: data.heartbeat,
-        volume: data.volume
+        volume: data.volume,
+        fee: exchange.fees.taker,
       }
     }
   ];

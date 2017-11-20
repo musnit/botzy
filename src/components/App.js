@@ -28,19 +28,6 @@ class App extends React.Component {
       <Helmet>
         <title>{`${wins? `(${wins})` : ''} Botzy`}</title>
       </Helmet>
-      {/* <div className='global-state'>
-        {pairs.map(pair => <div key={pair}>
-          <div>{pair}</div>
-          {(!globalState[pair][0].weight || !globalState[pair][1].weight)? 'No pair data for this pair' :
-            globalState[pair].map((item, index) => {
-              return <div key={index}>{
-                `Buy ${pair.slice(0,3)} ${item.buyFrom} sell into ${pair.slice(3)} ${item.sellTo}: ${item.weight}`
-              }</div>
-            })
-          }
-          <br />
-        </div>)}
-      </div> */}
       <Cytoscape activeExchanges={this.state.activeExchanges} />
       <div className='triangle-results'>
         {cycles.map(cycle => {

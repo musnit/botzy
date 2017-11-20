@@ -1,0 +1,19 @@
+volume sucks. maybe use volume converted to usd or some other activity measure, ie, can i pull the maker trade off or not?
+some kinda group by to see core edge/edges that are unlocking the trade
+fix sort/filter performance, ie can filter just once on filter change, not every time new data is in (at least on data that does not change, like source/target/exchange/maker/...) and then can sort only on filtered out cycles
+maybe can hardcode 'active pairs that are makerable'
+for maker, should bot pop up to top of order book by +1 ing?
+filter in/out can drop/start subscription
+dont need to be limited to making orders at the top of the order book's value. could make an order a little lower/higher under presumption that someone will dig past the top orders into yours.
+dedup edges not only on duplicate cycles, but also on no cycles with overlapping edges shown on screen at once (maybe)
+move filters out to filter system, defaulting to filter out low volume and maker
+fix dup loops
+perf improves
+render refreshes naturally, maybe change to redux/denormalized setState?
+heartbeat icons/colors/animation working fine
+filters on cycles can be used to filter in/out cross exchange, maker, etc
+add default filter of skip single-exchange t-t and t-m
+make it handle fees, maker/taker, and then maybe cross-exchange fee heuristic
+play/explore maker feasibility
+history!
+make next todos

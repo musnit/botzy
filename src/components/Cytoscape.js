@@ -1,9 +1,12 @@
-import React, {Component} from 'react';
+import React, { Component } from 'react';
 import cytoscape from 'cytoscape';
 import _ from 'lodash';
 
+import Cycle from './Cycle';
+
 import CURRENCIES from 'config/currencies';
 import config from 'config/cyto';
+import { filters } from 'helpers';
 import { createEdgesForExchanges, findCyclesForGraph } from 'helpers';
 
 const nodes = CURRENCIES.map(currency => ({ data: { id: currency } }));
@@ -54,7 +57,9 @@ class Cytoscape extends Component{
       edgesById,
       cycles,
       cyclesByEdge,
+      filters: [ 'oneMaker' ],
     };
+    this.state.filteredCycles = this.filteredCycles(this.state.filters, this.state.cycles);
     window.testUpdates = this.testUpdates;
     setInterval(this.sortCycles, 1000);
   }
@@ -68,25 +73,46 @@ class Cytoscape extends Component{
     });
   }
 
-  sortCycles = arg => {
-    console.log('starting');
-    const filteredCycles = _.filter(this.state.cycles, cycle => {
-      const someLowVolume = _.some(cycle.path, edge => {
-        return edge.data('volume') < 1000;
-      });
-      return !someLowVolume;
+  toggleFilter = filterKey => {
+    let newFilters;
+    if (this.state.filters.includes(filterKey)) {
+      newFilters = _.pull(this.state.filters, filterKey);
+    }
+    else {
+      newFilters = this.state.filters.concat(filterKey);
+    }
+    const filteredCycles = this.filteredCycles(newFilters, this.state.cycles);
+    this.setState({ filters: newFilters, filteredCycles });
+
+  }
+
+  filteredCycles = (currentFilters, cycles) => {
+    const filteredCycles = _.filter(cycles, cycle => {
+      const filterResults = currentFilters.map(filter => filters[filter].filter(cycle));
+      const filteredIn = _.every(filterResults);
+      return filteredIn;
     });
-    const sortedCycles = _.orderBy(filteredCycles, 'result', 'desc');
+    return filteredCycles;
+  }
+
+  sortCycles = arg => {
+    const sortedCycles = _.orderBy(this.state.filteredCycles, 'result', 'desc');
     this.setState({ sortedCycles });
-    console.log('done');
   }
 
   updateCycles = cycles => {
     cycles.forEach(cycle => {
-      const result = cycle.path.reduce((accum, edge) => {
+      const baseResult = cycle.path.reduce((accum, edge) => {
         return accum * parseFloat(edge.data('weight'));
       }, 1);
-      cycle.result = result;
+      const MAIN_CURRENCIES = ['eth', 'usd', 'eur', 'btc'];
+      const altEdge = cycle.path.find(edge => {
+        return !MAIN_CURRENCIES.includes(edge.data('source'));
+      });
+      const altCurrency = altEdge && altEdge.data('source');
+      cycle.baseResult = baseResult;
+      cycle.result = baseResult * cycle.fee;
+      cycle.altCurrency = altCurrency || '';
     });
   }
 
@@ -100,34 +126,24 @@ class Cytoscape extends Component{
     this.cy.destroy();
   }
 
-  getCy() {
-    return this.cy;
-  }
-
   render() {
     const cycles = this.state.sortedCycles || [];
     const bestCycles = cycles.slice(0,100);
-    return <div>
-      {/* <div style={cyStyle} ref="cyElement" /> */}
+    const currentFilters = this.state.filters;
+    return <div style={{ display: 'flex', flexDirection: 'row' }}>
       <div>
-        {/* {cycles.map((cycle, index) => <Cycle key={index} cycle={cycle} />)} */}
         {bestCycles.map((cycle, index) => <Cycle key={index} cycle={cycle} />)}
+      </div>
+      <div>
+        {Object.keys(filters).map(filterKey => {
+          const filterOn = currentFilters.includes(filterKey);
+          return <div key={filterKey}>
+            <input type='checkbox' checked={filterOn} onChange={_ => this.toggleFilter(filterKey)} />{filterKey}
+          </div>;
+        })}
       </div>
     </div>
   }
-}
-
-class Cycle extends Component {
-
-  render() {
-    const { cycle } = this.props;
-    return <div>
-      {cycle.result}&nbsp;&nbsp; {cycle.path.map((edge, index) => <span key={index}>
-        {edge.data('id')} {edge.data('weight')}&nbsp;&nbsp;&nbsp;
-      </span>)}
-    </div>
-  }
-
 }
 
 export default Cytoscape;

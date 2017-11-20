@@ -8,7 +8,6 @@ function updateEdges(pair, exchangeName, data) {
     window.testUpdates && window.testUpdates(updates);
 }
 
-
 export default exchanges => {
   exchanges.forEach(exchange => {
     const adapter = adapters[exchange.adapter];

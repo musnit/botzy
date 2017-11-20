@@ -1,4 +1,5 @@
 export { createEdgesForExchanges, createEdgesForPair } from './create-edges-for-exchanges';
+export filters from './filters';
 
 const removePairsWithCodes = (pairs, codes) => _.omitBy(pairs, (pair, filterKey) => {
   const match = codes.includes(filterKey);
@@ -66,6 +67,13 @@ export const findCyclesForGraph = (graph, length) => {
     findCyclesFromNode(firstNode, [], cycles);
     return accum.difference(firstNode);
   }, nodes);
+  cycles.forEach(cycle => {
+    const fee = cycle.path.reduce((accum, edge) => {
+      const edgeFee = edge.data('fee');
+      return accum * edgeFee;
+    }, 1);
+    cycle.fee = fee;
+  });
   return cycles;
 }
 
