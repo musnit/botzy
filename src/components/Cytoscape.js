@@ -57,9 +57,10 @@ class Cytoscape extends Component{
       edgesById,
       cycles,
       cyclesByEdge,
-      filters: [ 'oneMaker' ],
+      filters: [ 'oneMaker', 'allHighVolume', 'allTopCurrencies', 'excludeCurrency' ],
+      filterParams: { excludeCurrency: 'rrt,san,avt,qtm,dat,edo', includeCurrency: '' },
     };
-    this.state.filteredCycles = this.filteredCycles(this.state.filters, this.state.cycles);
+    this.state.filteredCycles = this.filteredCycles(this.state.filters, this.state.filterParams, this.state.cycles);
     window.testUpdates = this.testUpdates;
     setInterval(this.sortCycles, 1000);
   }
@@ -81,14 +82,18 @@ class Cytoscape extends Component{
     else {
       newFilters = this.state.filters.concat(filterKey);
     }
-    const filteredCycles = this.filteredCycles(newFilters, this.state.cycles);
+    const filteredCycles = this.filteredCycles(newFilters, this.state.filterParams, this.state.cycles);
     this.setState({ filters: newFilters, filteredCycles });
-
   }
 
-  filteredCycles = (currentFilters, cycles) => {
+  filteredCycles = (currentFilters, currentFilterParams, cycles) => {
     const filteredCycles = _.filter(cycles, cycle => {
-      const filterResults = currentFilters.map(filter => filters[filter].filter(cycle));
+      const filterResults = currentFilters.map(filter => {
+        const filterFunc = filters[filter].params?
+        filters[filter].filter(currentFilterParams[filter]) :
+        filters[filter].filter;
+        return filterFunc(cycle);
+      });
       const filteredIn = _.every(filterResults);
       return filteredIn;
     });
@@ -126,10 +131,19 @@ class Cytoscape extends Component{
     this.cy.destroy();
   }
 
+  setFilterParam = (filterKey, event) => {
+    const newEntry = {};
+    newEntry[filterKey] = event.target.value;
+    const newFilterParams = Object.assign({}, this.state.filterParams, newEntry);
+    const filteredCycles = this.filteredCycles(this.state.filters, newFilterParams, this.state.cycles);
+    this.setState({ filteredCycles, filterParams: newFilterParams });
+  }
+
   render() {
     const cycles = this.state.sortedCycles || [];
     const bestCycles = cycles.slice(0,100);
     const currentFilters = this.state.filters;
+    const currentFilterParams = this.state.filterParams;
     return <div style={{ display: 'flex', flexDirection: 'row' }}>
       <div>
         {bestCycles.map((cycle, index) => <Cycle key={index} cycle={cycle} />)}
@@ -137,8 +151,11 @@ class Cytoscape extends Component{
       <div>
         {Object.keys(filters).map(filterKey => {
           const filterOn = currentFilters.includes(filterKey);
+          const filterParam = currentFilterParams[filterKey];
+          const hasParams = filters[filterKey].params;
           return <div key={filterKey}>
             <input type='checkbox' checked={filterOn} onChange={_ => this.toggleFilter(filterKey)} />{filterKey}
+            {hasParams && <input type='text' value={filterParam} onChange={event => this.setFilterParam(filterKey, event)}/>}
           </div>;
         })}
       </div>

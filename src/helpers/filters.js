@@ -41,7 +41,23 @@ const fiatSoldOnBitstamp = cycle =>  _.some(cycle.path, edge => {
   return FIAT.includes(edge.data('source')) && edge.data('exchange') === 'bitstamp';
 });
 
+const fiatSoldOnBitfinex = cycle =>  _.some(cycle.path, edge => {
+  return FIAT.includes(edge.data('source')) && edge.data('exchange') === 'bitfinex';
+});
+
+//no dollar transfers across exchanges...
+
+//dollar transfers ok as long as no imbalance in holdings on exchanges between fiat/crypto
+
 const twoWay = cycle => cycle.path.length === 2;
+
+const includeCurrency = currencies => cycle =>  _.some(cycle.path, edge => {
+  return currencies.split(',').includes(edge.data('source'));
+});
+
+const excludeCurrency = currencies => cycle =>  _.every(cycle.path, edge => {
+  return !currencies.split(',').includes(edge.data('source'));
+});
 
 export default {
   allHighVolume: { text: 'All must be high volume', filter: allHighVolume },
@@ -54,5 +70,8 @@ export default {
   allTopCurrencies: { text: 'Must be all top currencies' , filter: allTopCurrencies },
   fiatBoughtOnBitstamp: { text: 'Must be a trade that buys fiat on bitstamp' , filter: fiatBoughtOnBitstamp },
   fiatSoldOnBitstamp: { text: 'Must be a trade that sells fiat on bitstamp' , filter: fiatSoldOnBitstamp },
+  fiatSoldOnBitfinex: { text: 'Must be a trade that sells fiat on bitstamp' , filter: fiatSoldOnBitfinex },
   twoWay: { text: 'Must be exactly 2-way trade' , filter: twoWay },
+  includeCurrency: { text: 'Must include currency ->' , filter: includeCurrency, params: true },
+  excludeCurrency: { text: 'Must exclude currencies ->' , filter: excludeCurrency, params: true },
 };
