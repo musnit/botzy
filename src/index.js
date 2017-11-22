@@ -9,7 +9,10 @@ import mainReducer from './ducks';
 import App from './components/App';
 import listen from './listen';
 
-const store = createStore(mainReducer);
+const store = createStore(
+  mainReducer,
+  window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__()
+);
 
 render(
   <Provider store={store}>

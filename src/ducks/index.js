@@ -1,8 +1,6 @@
-import { combineReducers } from 'redux'
-import todos from './todos'
-import counter from './counter'
+import { combineReducers } from 'redux';
+import activeCycles from './active-cycles';
 
 export default combineReducers({
-  todos,
-  counter
+  activeCycles,
 })

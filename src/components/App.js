@@ -3,8 +3,10 @@ import { connect } from 'react-redux';
 import { createStore } from 'redux';
 import { Helmet } from 'react-helmet';
 
-import Cytoscape from './Cytoscape';
 import EXCHANGES from 'config/exchanges';
+
+import Cytoscape from './Cytoscape';
+import ActiveCycles from './ActiveCycles';
 
 class App extends React.Component {
 
@@ -29,27 +31,7 @@ class App extends React.Component {
         <title>{`${wins? `(${wins})` : ''} Botzy`}</title>
       </Helmet>
       <Cytoscape activeExchanges={this.state.activeExchanges} />
-      <div className='triangle-results'>
-        {cycles.map(cycle => {
-          const posi = cycle.weight > 1;
-          return <div style={{ backgroundColor: posi? '#9fff9f' : '#ffb4b4' }} key={cycle.text}>
-            <div>
-              <span className='cycle-heartbeats'>
-                {cycle.heartbeats.map((h, index) => {
-                  const timePassed = Math.min(h/2000, 1) * 240;
-                  const r = parseInt(timePassed);
-                  const g = parseInt(240 - timePassed);
-                  return <span key={index}
-                    className='cycle-heartbeat'
-                    style={{ backgroundColor: `rgba(${r}, ${g}, 0, 1)` }} >
-                  </span>;
-                })}
-              </span>
-              {`${cycle.text}: ${cycle.weight} ${(cycle.weight - 1) * 100}%`}
-            </div>
-          </div>
-        })}
-      </div>
+      <ActiveCycles />
     </div>;
   }
 

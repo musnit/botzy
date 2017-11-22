@@ -1,4 +1,8 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
+
+import { addActiveCycle } from 'ducks/active-cycles';
 
 class Cycle extends Component {
 
@@ -6,7 +10,8 @@ class Cycle extends Component {
     const { cycle } = this.props;
     const posi = cycle.result > 1;
     const text = cycle.path.map(edge => edge.data('id')).join(' ');
-    return <div style={{ backgroundColor: posi? '#9fff9f' : '#ffb4b4' }}>
+    return <div onClick={_ => this.props.addActiveCycle(cycle)}
+      style={{ backgroundColor: posi? '#9fff9f' : '#ffb4b4' }}>
       <div>
         {/* <span className='cycle-heartbeats'>
           {cycle.heartbeats.map((h, index) => {
@@ -19,11 +24,25 @@ class Cycle extends Component {
             </span>;
           })}
         </span> */}
-        {`${cycle.result} ${(cycle.result - 1) * 100}% ${text} ${cycle.altCurrency}`}
+        {`${(cycle.result - 1) * 100}% ${text} ${cycle.altCurrency}`}
       </div>
     </div>;
   }
 
 }
 
-export default Cycle;
+const mapStateToProps = state => {
+  return {
+  };
+}
+
+const mapDispatchToProps = dispatch => {
+  return bindActionCreators({ addActiveCycle }, dispatch)
+}
+
+const ConnectedCycle = connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(Cycle)
+
+module.exports = ConnectedCycle;

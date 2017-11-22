@@ -51,13 +51,21 @@ const fiatSoldOnBitfinex = cycle =>  _.some(cycle.path, edge => {
 
 const twoWay = cycle => cycle.path.length === 2;
 
-const includeCurrency = currencies => cycle =>  _.some(cycle.path, edge => {
+const includeCurrencies = currencies => cycle =>  _.some(cycle.path, edge => {
   return currencies.split(',').includes(edge.data('source'));
 });
 
-const excludeCurrency = currencies => cycle =>  _.every(cycle.path, edge => {
+const excludeCurrencies = currencies => cycle =>  _.every(cycle.path, edge => {
   return !currencies.split(',').includes(edge.data('source'));
 });
+
+//broken:
+// const onlyCurrencies = currencies => cycle =>  _.every(cycle.path, edge => {
+//   return _.some(currencies.split(','), currency => {
+//     console.log(edge.data('source') === currency);
+//     edge.data('source') === currency;
+//   });
+// });
 
 export default {
   allHighVolume: { text: 'All must be high volume', filter: allHighVolume },
@@ -72,6 +80,7 @@ export default {
   fiatSoldOnBitstamp: { text: 'Must be a trade that sells fiat on bitstamp' , filter: fiatSoldOnBitstamp },
   fiatSoldOnBitfinex: { text: 'Must be a trade that sells fiat on bitstamp' , filter: fiatSoldOnBitfinex },
   twoWay: { text: 'Must be exactly 2-way trade' , filter: twoWay },
-  includeCurrency: { text: 'Must include currency ->' , filter: includeCurrency, params: true },
-  excludeCurrency: { text: 'Must exclude currencies ->' , filter: excludeCurrency, params: true },
+  includeCurrencies: { text: 'Must include currencies ->' , filter: includeCurrencies, params: true },
+  excludeCurrencies: { text: 'Must exclude currencies ->' , filter: excludeCurrencies, params: true },
+  // onlyCurrencies: { text: 'Must include only currencies ->' , filter: onlyCurrencies, params: true },
 };

@@ -52,13 +52,14 @@ class Cytoscape extends Component{
     }, {});
     console.log(`Cycles ready! - Found in ${Date.now() - time}ms`);
     this.state = {
+      show: true,
       nodes,
       edges,
       edgesById,
       cycles,
       cyclesByEdge,
-      filters: [ 'oneMaker', 'allHighVolume', 'allTopCurrencies', 'excludeCurrency' ],
-      filterParams: { excludeCurrency: 'rrt,san,avt,qtm,dat,edo', includeCurrency: '' },
+      filters: [ 'oneMaker', 'allHighVolume', 'allTopCurrencies', 'excludeCurrencies' ],
+      filterParams: { excludeCurrencies: 'rrt,san,avt,qtm,dat,edo', includeCurrencies: '', onlyCurrencies: '' },
     };
     this.state.filteredCycles = this.filteredCycles(this.state.filters, this.state.filterParams, this.state.cycles);
     window.testUpdates = this.testUpdates;
@@ -131,6 +132,10 @@ class Cytoscape extends Component{
     this.cy.destroy();
   }
 
+  setShow = event => {
+    this.setState({ show: event.target.checked });
+  }
+
   setFilterParam = (filterKey, event) => {
     const newEntry = {};
     newEntry[filterKey] = event.target.value;
@@ -140,12 +145,19 @@ class Cytoscape extends Component{
   }
 
   render() {
+    const show = this.state.show;
+    const toggleShow = <input type='checkbox'
+      checked={show} onChange={this.setShow} />;
+    if (!show) {
+      return <div>{toggleShow} Show</div>;
+    }
     const cycles = this.state.sortedCycles || [];
     const bestCycles = cycles.slice(0,100);
     const currentFilters = this.state.filters;
     const currentFilterParams = this.state.filterParams;
     return <div style={{ display: 'flex', flexDirection: 'row' }}>
       <div>
+        {toggleShow} Show
         {bestCycles.map((cycle, index) => <Cycle key={index} cycle={cycle} />)}
       </div>
       <div>
