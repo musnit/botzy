@@ -8,7 +8,7 @@ class ActiveCycles extends Component {
 
   render() {
     const { cycles } = this.props;
-    return <div>
+    return <div className='active-cycles'>
       <h2>Active Cycles:</h2>
       {cycles.map((cycle, index) => <ActiveCycle key={index} cycle={cycle} />)}
     </div>;

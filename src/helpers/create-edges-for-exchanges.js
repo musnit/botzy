@@ -14,6 +14,34 @@ export const createEdgesForPair = (pair, exchangeName, data = {}) => {
   const currency1 = pair.slice(0, 3);
   const currency2 = pair.slice(3);
   const exchange = EXCHANGES_BY_NAME[exchangeName];
+  if(data.heartbeatOnly) {
+    return [
+      {
+        data: {
+          id: `${exchangeName}_${currency1}_${currency2}_m`,
+          heartbeat: data.heartbeat,
+        },
+      },
+      {
+        data: {
+          id: `${exchangeName}_${currency1}_${currency2}_t`,
+          heartbeat: data.heartbeat,
+        },
+      },
+      {
+        data: {
+          id: `${exchangeName}_${currency2}_${currency1}_m`,
+          heartbeat: data.heartbeat,
+        }
+      },
+      {
+        data: {
+          id: `${exchangeName}_${currency2}_${currency1}_t`,
+          heartbeat: data.heartbeat,
+        }
+      }
+    ];
+  }
   const edges = [
     {
       data: {

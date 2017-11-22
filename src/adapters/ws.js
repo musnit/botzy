@@ -41,8 +41,13 @@ export default function start(exchange, updateEdges) {
       return;
     }
     if (data[1] === 'hb') {
-      // console.log(`${exchange.name} heartbeat on channel ${data[0]} for pair ${activeChannels[exchange.name][data[0]]}`);
-      // globalHeartbeats[exchange.name][activeChannels[exchange.name][data[0]]] = Date.now();
+      const channel = data[0];
+      const pair = activeChannels[channel];
+      const pairData = {
+        heartbeat: Date.now(),
+        heartbeatOnly: true,
+      };
+      updateEdges(pair, exchange.name, pairData);
       return;
     }
     const channel = data[0];

@@ -26,3 +26,35 @@
   border-radius: 5px;
   display: inline-block;
 }
+
+.active-edge-display {
+  display: inline-block;
+  min-width: 33.33%;
+  max-width: 33.33%;
+  text-align: center;
+}
+
+.active-cycles {
+  min-width: 600px;
+}
+
+.active-cycle {
+  text-align: center;
+}
+
+.active-cycle-edge-displays {
+  margin-bottom: 10px;
+}
+
+.active-cycle-returns {
+  text-align: left;
+}
+
+.active-cycle-returns > div {
+  display: flex;
+  padding: 2px 10px;
+}
+
+.active-cycle-returns > div > label {
+  margin-right: auto;
+}
