@@ -166,8 +166,12 @@ class Cytoscape extends Component{
           const filterParam = currentFilterParams[filterKey];
           const hasParams = filters[filterKey].params;
           return <div key={filterKey}>
-            <input type='checkbox' checked={filterOn} onChange={_ => this.toggleFilter(filterKey)} />{filterKey}
-            {hasParams && <input type='text' value={filterParam} onChange={event => this.setFilterParam(filterKey, event)}/>}
+            <div>
+              <input type='checkbox' checked={filterOn} onChange={_ => this.toggleFilter(filterKey)} />{filterKey}
+            </div>
+            {hasParams && <div>
+              <input type='text' value={filterParam} onChange={event => this.setFilterParam(filterKey, event)}/>
+            </div>}
           </div>;
         })}
       </div>

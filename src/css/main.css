@@ -36,6 +36,7 @@
 
 .active-cycles {
   min-width: 600px;
+  flex-grow: 2;
 }
 
 .active-cycle {
