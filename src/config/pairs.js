@@ -63,6 +63,7 @@ const PAIRS = [
   'etheur',
   'ltceur',
   'eurusd',
+  'btceur',
 ];
 
 module.exports = PAIRS;

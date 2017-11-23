@@ -2,10 +2,21 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
+import ActiveEdge from './ActiveEdge';
+
 class ActiveCycle extends Component {
 
   componentDidMount = _ => {
     setInterval(this.forceUpdate.bind(this), 100);
+  }
+
+  go = _ => {
+    const makerEdge = this.props.cycle.path.find(e => e.data('maker'));
+    this.props.addTrigger(makerEdge, this.props.cycle);
+  }
+
+  abort = _ => {
+
   }
 
   render() {
@@ -17,23 +28,6 @@ class ActiveCycle extends Component {
       style={{ backgroundColor: posi? '#9fff9f' : '#ffb4b4' }}>
       <div>ID: {`${text}`}</div>
       <div>Main Altcoin: {`${cycle.altCurrency}`}</div>
-      <div className='active-cycle-edge-displays'>
-        {cycle.path.map(edge => {
-          const idArray = edge.data('id').split('_');
-          const exchange = idArray[0];
-          const from = idArray[1];
-          const to = idArray[2];
-          const makerTaker = edge.data('maker') === true? 'Maker' : 'Taker';
-          const depth = edge.data('depth');
-          return <span key={edge.data('id')} className='active-edge-display'>
-            <div>{exchange}</div>
-            <div>{from} -> {to}</div>
-            <div>{makerTaker}@{edge.data('weight')}</div>
-            <div>Depth: {edge.data('depth')}</div>
-            <div>Liveness: {(Date.now() - edge.data('heartbeat'))}ms</div>
-          </span>;
-        })}
-      </div>
       <div className='active-cycle-returns'>
         <div>
           <label>Current Best Return:</label> <strong>{`${(cycle.result - 1) * 100}%`}</strong>
@@ -44,6 +38,17 @@ class ActiveCycle extends Component {
         <div>
           Current Expected Return:
         </div>
+      </div>
+      <div className='active-cycle-edge-displays'>
+        {cycle.path.map(edge => {
+          const edgeId = edge.data('id');
+          const edgeKey = edgeId + Math.random();
+          return <ActiveEdge edge={edge} key={edgeKey} />;
+        })}
+      </div>
+      <div className='active-cycle-controls'>
+        <button onClick={this.go}>Go!</button>
+        <button onClick={this.abort}>Abort!</button>
       </div>
     </div>;
   }

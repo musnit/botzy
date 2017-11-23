@@ -55,6 +55,7 @@ export const createEdgesForPair = (pair, exchangeName, data = {}) => {
         heartbeat: data.heartbeat,
         volume: data.volume,
         fee: exchange.fees.maker,
+        pair,
       },
     },
     {
@@ -69,6 +70,7 @@ export const createEdgesForPair = (pair, exchangeName, data = {}) => {
         heartbeat: data.heartbeat,
         volume: data.volume,
         fee: exchange.fees.taker,
+        pair,
       },
     },
     {
@@ -83,6 +85,7 @@ export const createEdgesForPair = (pair, exchangeName, data = {}) => {
         heartbeat: data.heartbeat,
         volume: data.volume,
         fee: exchange.fees.maker,
+        pair,
       }
     },
     {
@@ -97,6 +100,7 @@ export const createEdgesForPair = (pair, exchangeName, data = {}) => {
         heartbeat: data.heartbeat,
         volume: data.volume,
         fee: exchange.fees.taker,
+        pair,
       }
     }
   ];

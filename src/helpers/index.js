@@ -1,3 +1,5 @@
+import { maxDistance } from 'config/misc';
+
 export { createEdgesForExchanges, createEdgesForPair } from './create-edges-for-exchanges';
 export filters from './filters';
 
@@ -35,7 +37,6 @@ const makeNextPairs = (pairs, graph, currencyCodes, currentCycleLength, length) 
   });
 };
 
-const maxDistance = 3;
 const findCyclesFromNode = (startingNode, path, cycles) => {
   const previousNode = path.length === 0? startingNode : path[path.length - 1].target();
   const nextEdges = previousNode.outgoers(e => e.isEdge());

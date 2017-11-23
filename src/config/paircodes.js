@@ -61,10 +61,12 @@ const PAIRCODES = {
     "btgbtc": "BTGBTC",
     "datusd": "DATUSD",
     "datbtc": "DATBTC",
-    "dateth": "DATETH"
+    "dateth": "DATETH",
+    "btceur": "BTCEUR"
   },
   bitstamp: {
     btcusd: 'order_book',
+    btceur: 'order_book_btceur',
     ltcusd: 'order_book_ltcusd',
     ethusd: 'order_book_ethusd',
     xrpusd: 'order_book_xrpusd',
