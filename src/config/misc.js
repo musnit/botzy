@@ -1,1 +1,1 @@
-export const maxDistance =  3;
+export const maxDistance = 3;

@@ -10,15 +10,6 @@ class ActiveCycle extends Component {
     setInterval(this.forceUpdate.bind(this), 100);
   }
 
-  go = _ => {
-    const makerEdge = this.props.cycle.path.find(e => e.data('maker'));
-    this.props.addTrigger(makerEdge, this.props.cycle);
-  }
-
-  abort = _ => {
-
-  }
-
   render() {
     const { cycle } = this.props;
     const posi = cycle.result > 1;
@@ -43,12 +34,8 @@ class ActiveCycle extends Component {
         {cycle.path.map(edge => {
           const edgeId = edge.data('id');
           const edgeKey = edgeId + Math.random();
-          return <ActiveEdge edge={edge} key={edgeKey} />;
+          return <ActiveEdge edge={edge} key={edgeKey} addTrigger={this.props.addTrigger} />;
         })}
-      </div>
-      <div className='active-cycle-controls'>
-        <button onClick={this.go}>Go!</button>
-        <button onClick={this.abort}>Abort!</button>
       </div>
     </div>;
   }

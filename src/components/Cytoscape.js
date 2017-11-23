@@ -51,7 +51,6 @@ class Cytoscape extends Component{
       return accum;
     }, {});
     console.log(`Cycles ready! - Found in ${Date.now() - time}ms`);
-    console.log(cyclesByEdge);
     this.state = {
       show: true,
       nodes,
@@ -59,7 +58,7 @@ class Cytoscape extends Component{
       edgesById,
       cycles,
       cyclesByEdge,
-      filters: [ 'oneMaker', 'allHighVolume', 'allTopCurrencies', 'excludeCurrencies' ],
+      filters: [ 'allBitfinex', 'makeFromBTCETH', 'oneMaker', 'allHighVolume', 'allTopCurrencies', 'excludeCurrencies' ],
       filterParams: { excludeCurrencies: 'rrt,san,avt,qtm,dat,edo,btg', includeCurrencies: '', onlyCurrencies: '' },
     };
     this.state.filteredCycles = this.filteredCycles(this.state.filters, this.state.filterParams, this.state.cycles);

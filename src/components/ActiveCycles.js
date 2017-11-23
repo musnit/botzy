@@ -3,6 +3,9 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
 import ActiveCycle from './ActiveCycle';
+import { EXCHANGES_BY_NAME } from 'config/exchanges';
+
+import makeRequest from 'adapters/local-server';
 
 class ActiveCycles extends Component {
   activeTriggers = {}
@@ -13,39 +16,73 @@ class ActiveCycles extends Component {
     window.checkTriggers = this.checkTriggers;
   }
 
-  addTrigger = (edge, cycle) => {
+  addTrigger = (edge) => {
     const edgeId = edge.data('id');
-    console.log(`Trigger set for ${edgeId} on cycle`);
-    this.activeTriggers[edgeId] = { edge, cycle };
+    console.log(`Trigger set for ${edgeId}`);
+    this.activeTriggers[edgeId] = edge;
   }
 
   checkTriggers = updates => {
     updates.forEach(update => {
-      const cycleEdgeToTrigger = this.activeTriggers[update.data.id];
-      if(cycleEdgeToTrigger) {
-        this.triggerEdge(cycleEdgeToTrigger);
+      const edgeToTrigger = this.activeTriggers[update.data.id];
+      if(edgeToTrigger) {
+        this.triggerEdge(edgeToTrigger);
       }
     });
   }
 
-  triggerEdge = cycleEdge => {
+  triggerEdge = edge => {
     try {
-      const edgeData = cycleEdge.edge.data();
+      const edgeData = edge.data();
       console.log(`Looking at triggering ${edgeData.id} with ${JSON.stringify(edgeData)}`);
       this.activeTriggers[edgeData.id] = undefined;
 
-      //check cycle is stil good
-      const result = cycleEdge.cycle.result;
-      console.log(`Cycle return is now at: ${result}`);
-      if (result > 1.001) {
-        console.log(`Result looks above 0.1, continuing`);
+      //TODO: check edge is stil good in *SOME* cycle
+
+      //TODO: calculate max order size can do
+
+      //calculate min order size can do
+      //go with min for now
+      const symbolDetails = EXCHANGES_BY_NAME[edgeData.exchange].symbolDetails[edgeData.pair];
+      const orderSize = symbolDetails.minimum_order_size * 3;
+
+      //calculate bid or ask type
+      console.log(orderSize);
+      console.log(edgeData);
+      const pairFirst = edgeData.pair.slice(0,3);
+      let side, price;
+      if (pairFirst === edgeData.source) {
+        //we are converting in normal direction, ie, selling, ie, asking
+        side = 'sell';
+        price = edgeData.weight;
       }
       else {
-        throw new Error(`Result dropped below 0.1, aborting`);
+        //bidding
+        side = 'buy';
+        price = 1/edgeData.weight;
       }
-      //calculate max volume can do
-      //calculate min volume can do
-      //go with min for now
+
+      const orderPayload = {
+       request: '/v1/order/new',
+       nonce: Date.now().toString(),
+       //TODO: should do map/inverse pair map here
+       symbol: edgeData.pair,
+       amount: '' + orderSize,
+       price: '' + price,
+       exchange: 'bitfinex',
+       side,
+       type: 'exchange limit'
+      };
+
+      makeRequest('new_order', orderPayload)
+        .then(response => {
+          console.log(response);
+          console.log(response.body);
+          edge.data({ activeOrder: response.body });
+        }, error => {
+          alert(error.response.body.message);
+        });
+
       //make limit order, then success => watch / fail => error
       //then implement abort
       //then implement watch and autoabort

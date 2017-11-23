@@ -1,4 +1,6 @@
 import Paircodes from 'config/paircodes';
+import BitfinexSymbolDetails from 'config/bitfinex-symbol-details';
+
 import _ from 'lodash';
 
 const EXCHANGES = [
@@ -14,7 +16,8 @@ const EXCHANGES = [
     fees: {
       maker: 1 - 0.1/100,
       taker: 1 - 0.2/100
-    }
+    },
+    symbolDetails: BitfinexSymbolDetails
   },
 {
     name: 'bitstamp',
