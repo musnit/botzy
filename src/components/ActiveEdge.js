@@ -32,6 +32,38 @@ class ActiveEdge extends Component {
       });
   }
 
+  update = _ => {
+    const edgeData = this.props.edge.data();
+    const activeOrder = edgeData.activeOrder;
+
+    let newPrice;
+    if (activeOrder.side === 'sell') {
+      newPrice = edgeData.weight;
+    }
+    else {
+      newPrice = 1/edgeData.weight;
+    }
+
+    const orderPayload = {
+      request: '/v1/order/cancel/replace',
+      nonce: Date.now().toString(),
+      order_id: activeOrder.id,
+      symbol: activeOrder.symbol,
+      amount: activeOrder.remaining_amount,
+      price: '' + newPrice,
+      side: activeOrder.side,
+      type: activeOrder.type
+    };
+
+    makeRequest('replace_order', orderPayload)
+      .then(response => {
+        console.log(response.body);
+        this.props.edge.data({ activeOrder: response.body });
+      }, error => {
+        alert(error.response.body.message);
+      });
+  }
+
   render() {
     const { edge } = this.props;
     const idArray = edge.data('id').split('_');
@@ -49,8 +81,9 @@ class ActiveEdge extends Component {
       <div>Liveness: {(Date.now() - edge.data('heartbeat'))}ms</div>
       {activeOrder && <div>Active Order: {activeOrder.price}</div>}
       <div className='active-edge-controls'>
-        {edge.data('maker') && <button onClick={this.go}>Go!</button>}
+        {edge.data('maker') && !activeOrder && <button onClick={this.go}>Go!</button>}
         {activeOrder && <button onClick={this.abort}>Abort!</button>}
+        {activeOrder && <button onClick={this.update}>Update!</button>}
       </div>
     </span>;
   }

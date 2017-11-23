@@ -9,6 +9,7 @@ const URLS = {
   'account_infos': '/v1/account_infos',
   'new_order': '/v1/order/new',
   'cancel_order': '/v1/order/cancel',
+  'replace_order': '/v1/order/cancel/replace',
 };
 
 const nonce = Date.now().toString();
