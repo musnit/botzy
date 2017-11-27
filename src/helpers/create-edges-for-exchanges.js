@@ -51,6 +51,7 @@ export const createEdgesForPair = (pair, exchangeName, data = {}) => {
         maker: true,
         exchange: exchangeName,
         weight: data.askPrice,
+        price: data.askPrice,
         depth: data.askSize,
         heartbeat: data.heartbeat,
         volume: data.volume,
@@ -66,6 +67,7 @@ export const createEdgesForPair = (pair, exchangeName, data = {}) => {
         maker: false,
         exchange: exchangeName,
         weight: data.bidPrice,
+        price: data.bidPrice,
         depth: data.bidSize,
         heartbeat: data.heartbeat,
         volume: data.volume,
@@ -81,6 +83,7 @@ export const createEdgesForPair = (pair, exchangeName, data = {}) => {
         maker: true,
         exchange: exchangeName,
         weight: 1/data.bidPrice,
+        price: data.bidPrice,
         depth: data.bidSize,
         heartbeat: data.heartbeat,
         volume: data.volume,
@@ -96,6 +99,7 @@ export const createEdgesForPair = (pair, exchangeName, data = {}) => {
         maker: false,
         exchange: exchangeName,
         weight: 1/data.askPrice,
+        price: data.askPrice,
         depth: data.askSize,
         heartbeat: data.heartbeat,
         volume: data.volume,
@@ -109,7 +113,7 @@ export const createEdgesForPair = (pair, exchangeName, data = {}) => {
 
 const createEdgesForExchange = exchange => {
   const pairNameMapping = exchange.adapterConfig.pairNameMapping;
-  return PAIRS.reduce((accum, pair) => {
+  const edgesForExchange = PAIRS.reduce((accum, pair) => {
     const pairName = pairNameMapping(pair);
     if (pairName) {
       const edges = createEdgesForPair(pair, exchange.name);
@@ -117,4 +121,5 @@ const createEdgesForExchange = exchange => {
     }
     return accum;
   }, []);
+  return edgesForExchange;
 };

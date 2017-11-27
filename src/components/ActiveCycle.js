@@ -34,7 +34,7 @@ class ActiveCycle extends Component {
         {cycle.path.map(edge => {
           const edgeId = edge.data('id');
           const edgeKey = edgeId + Math.random();
-          return <ActiveEdge edge={edge} key={edgeKey} addTrigger={this.props.addTrigger} />;
+          return <ActiveEdge deactivate={this.props.deactivate} edge={edge} key={edgeKey} addTrigger={this.props.addTrigger} />;
         })}
       </div>
     </div>;

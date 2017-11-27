@@ -77,6 +77,9 @@ const PAIRCODES = {
     xrpeur: 'order_book_xrpeur',
     etheur: 'order_book_etheur',
     ltceur: 'order_book_ltceur',
+  },
+  luno: {
+    ethbtc: 'ETHXBT',
   }
 };
 

@@ -25,6 +25,10 @@ const someBitfinex = cycle =>  _.some(cycle.path, edge => {
   return edge.data('exchange') === 'bitfinex';
 });
 
+const someLuno = cycle =>  _.some(cycle.path, edge => {
+  return edge.data('exchange') === 'luno';
+});
+
 const allBitfinex = cycle =>  _.every(cycle.path, edge => {
   return edge.data('exchange') === 'bitfinex';
 });
@@ -51,6 +55,10 @@ const allFiatEdges = cycle =>  _.every(cycle.path, edge => {
 
 const makeFromBTCETH = cycle =>  _.some(cycle.path, edge => {
   return ['btc', 'eth'].includes(edge.data('source')) && edge.data('maker') === true;
+});
+
+const makeFromBTC = cycle =>  _.some(cycle.path, edge => {
+  return ['btc'].includes(edge.data('source')) && edge.data('maker') === true;
 });
 
 //no dollar transfers across exchanges...
@@ -83,6 +91,7 @@ export default {
   someUSD: { text: 'Must have some USD edge', filter: someUSD },
   someBitstamp: { text: 'Must have some Bitstamp edge', filter: someBitstamp },
   someBitfinex: { text: 'Must have some Bitfinex edge' , filter: someBitfinex },
+  someLuno: { text: 'Must have some Luno edge' , filter: someLuno },
   allBitfinex: { text: 'Must have all Bitfinex edges' , filter: allBitfinex },
   allTopCurrencies: { text: 'Must be all top currencies' , filter: allTopCurrencies },
   fiatBoughtOnBitstamp: { text: 'Must be a trade that buys fiat on bitstamp' , filter: fiatBoughtOnBitstamp },
@@ -94,5 +103,6 @@ export default {
   includeCurrencies: { text: 'Must include currencies ->' , filter: includeCurrencies, params: true },
   excludeCurrencies: { text: 'Must exclude currencies ->' , filter: excludeCurrencies, params: true },
   makeFromBTCETH: { text: 'Must be maker on ETH or BTC sale' , filter: makeFromBTCETH },
+  makeFromBTC: { text: 'Must be maker on BTC sale' , filter: makeFromBTC },
   // onlyCurrencies: { text: 'Must include only currencies ->' , filter: onlyCurrencies, params: true },
 };

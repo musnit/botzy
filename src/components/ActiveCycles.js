@@ -9,11 +9,17 @@ import makeRequest from 'adapters/local-server';
 
 class ActiveCycles extends Component {
   activeTriggers = {}
+  activeEdges = {}
   state = {}
 
   constructor(props) {
     super(props);
     window.checkTriggers = this.checkTriggers;
+    window.checkActives = this.checkActives;
+  }
+
+  deactivate = edge => {
+    this.activeEdges[edge.data('id')] = undefined;
   }
 
   addTrigger = (edge) => {
@@ -29,6 +35,52 @@ class ActiveCycles extends Component {
         this.triggerEdge(edgeToTrigger);
       }
     });
+  }
+
+  checkActives = updates => {
+    updates.forEach(update => {
+      const activeEdge = this.activeEdges[update.data.id];
+      if(activeEdge) {
+        this.checkActive(activeEdge);
+      }
+    });
+  }
+
+  checkActive = edge => {
+    console.log(`${edge.data('id')} is active and just got new data`);
+    this.updateActive(edge);
+  }
+
+  updateActive = edge => {
+    const edgeData = edge.data();
+    const activeOrder = edgeData.activeOrder;
+
+    let newPrice;
+    if (activeOrder.side === 'sell') {
+      newPrice = edgeData.weight;
+    }
+    else {
+      newPrice = 1/edgeData.weight;
+    }
+
+    const orderPayload = {
+      request: '/v1/order/cancel/replace',
+      nonce: Date.now().toString(),
+      order_id: activeOrder.id,
+      symbol: activeOrder.symbol,
+      amount: activeOrder.remaining_amount,
+      price: '' + newPrice,
+      side: activeOrder.side,
+      type: activeOrder.type
+    };
+
+    makeRequest('replace_order', orderPayload)
+      .then(response => {
+        console.log(response.body);
+        edge.data({ activeOrder: response.body });
+      }, error => {
+        console.error(error.response.body.message);
+      });
   }
 
   triggerEdge = edge => {
@@ -79,8 +131,9 @@ class ActiveCycles extends Component {
           console.log(response);
           console.log(response.body);
           edge.data({ activeOrder: response.body });
+          this.activeEdges[edgeData.id] = edge;
         }, error => {
-          alert(error.response.body.message);
+          console.error(error.response.body.message);
         });
 
       //make limit order, then success => watch / fail => error
@@ -98,7 +151,7 @@ class ActiveCycles extends Component {
     const { cycles } = this.props;
     return <div className='active-cycles'>
       <h2>Active Cycles:</h2>
-      {cycles.map((cycle, index) => <ActiveCycle addTrigger={this.addTrigger} key={index} cycle={cycle} />)}
+      {cycles.map((cycle, index) => <ActiveCycle deactivate={this.deactivate} addTrigger={this.addTrigger} key={index} cycle={cycle} />)}
     </div>;
   }
 

@@ -27,8 +27,9 @@ class ActiveEdge extends Component {
       .then(response => {
         console.log(response.body);
         this.props.edge.data({ activeOrder: undefined });
+        this.props.deactivate(this.props.edge);
       }, error => {
-        alert(error.response.body.message);
+        console.error(error.response.body.message);
       });
   }
 
@@ -60,7 +61,7 @@ class ActiveEdge extends Component {
         console.log(response.body);
         this.props.edge.data({ activeOrder: response.body });
       }, error => {
-        alert(error.response.body.message);
+        console.error(error.response.body.message);
       });
   }
 
@@ -76,7 +77,7 @@ class ActiveEdge extends Component {
     return <span className='active-edge-display'>
       <div>{exchange}</div>
       <div><a target='_blank' href={makeLink(edge.data('pair'))} >{from} -> {to}</a></div>
-      <div>{makerTaker}@{edge.data('weight')}</div>
+      <div>{makerTaker}@{edge.data('price')}</div>
       <div>Depth: {edge.data('depth')}</div>
       <div>Liveness: {(Date.now() - edge.data('heartbeat'))}ms</div>
       {activeOrder && <div>Active Order: {activeOrder.price}</div>}
