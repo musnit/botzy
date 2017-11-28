@@ -30,8 +30,8 @@ const EXCHANGES = [
       pairNameMapping: pair => Paircodes.bitstamp[pair]
     },
     fees: {
-      maker: 1 - 0.25/100,
-      taker: 1 - 0.25/100
+      maker: 1 - 0.24/100,
+      taker: 1 - 0.24/100
     }
   },
   {
