@@ -64,17 +64,16 @@ class ActiveCycles extends Component {
     }
 
     const orderPayload = {
-      request: '/v1/order/cancel/replace',
-      nonce: Date.now().toString(),
-      order_id: activeOrder.id,
+      id: activeOrder.id,
       symbol: activeOrder.symbol,
       amount: activeOrder.remaining_amount,
       price: '' + newPrice,
       side: activeOrder.side,
-      type: activeOrder.type
+      type: activeOrder.type,
+      exchange: edgeData.exchange
     };
 
-    makeRequest('replace_order', orderPayload)
+    makeRequest('replace_limit_order', orderPayload)
       .then(response => {
         console.log(response.body);
         edge.data({ activeOrder: response.body });
@@ -115,18 +114,15 @@ class ActiveCycles extends Component {
       }
 
       const orderPayload = {
-       request: '/v1/order/new',
-       nonce: Date.now().toString(),
        //TODO: should do map/inverse pair map here
        symbol: edgeData.pair,
        amount: '' + orderSize,
        price: '' + price,
-       exchange: 'bitfinex',
        side,
-       type: 'exchange limit'
+       exchange: edgeData.exchange
       };
 
-      makeRequest('new_order', orderPayload)
+      makeRequest('new_limit_order', orderPayload)
         .then(response => {
           console.log(response);
           console.log(response.body);

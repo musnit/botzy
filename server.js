@@ -4,7 +4,7 @@ var path = require('path');
 var express = require('express');
 var webpack = require('webpack');
 var config = require('./webpack.config');
-import makeRequest from './src/adapters/bitfinex-rest';
+import restAdapters from './src/adapters/rest';
 
 var app = express();
 var compiler = webpack(config);
@@ -23,7 +23,8 @@ app.post('/message', jsonParser, (req, res) => {
   const { type, body } = req.body;
   console.log('sending with:');
   console.log(JSON.stringify(body));
-  makeRequest(type, body).then(response => {
+  const restAdapter = restAdapters[body.exchange];
+  restAdapter(type, body).then(response => {
     console.log(response.body);
     res.send(response.body);
   }, error => {

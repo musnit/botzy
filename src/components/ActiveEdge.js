@@ -17,10 +17,10 @@ class ActiveEdge extends Component {
   }
 
   abort = _ => {
+
     const orderPayload = {
-      request: '/v1/order/cancel',
-      nonce: Date.now().toString(),
-      order_id: this.props.edge.data('activeOrder').id
+      id: this.props.edge.data('activeOrder').id,
+      exchange: this.props.edge.data('exchange')
     };
 
     makeRequest('cancel_order', orderPayload)
