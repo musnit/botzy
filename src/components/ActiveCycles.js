@@ -4,6 +4,7 @@ import { bindActionCreators } from 'redux';
 
 import ActiveCycle from './ActiveCycle';
 import { EXCHANGES_BY_NAME } from 'config/exchanges';
+import PAIRCODES from 'config/paircodes';
 
 import makeRequest from 'adapters/local-server';
 
@@ -53,6 +54,9 @@ class ActiveCycles extends Component {
 
   updateActive = edge => {
     const edgeData = edge.data();
+    if(edgeData.exchange !== 'bitfinex') {
+      return;
+    }
     const activeOrder = edgeData.activeOrder;
 
     let newPrice;
@@ -94,7 +98,8 @@ class ActiveCycles extends Component {
 
       //calculate min order size can do
       //go with min for now
-      const symbolDetails = EXCHANGES_BY_NAME[edgeData.exchange].symbolDetails[edgeData.pair];
+      const symbolCode = PAIRCODES[edgeData.exchange][edgeData.pair];
+      const symbolDetails = EXCHANGES_BY_NAME[edgeData.exchange].symbolDetails[symbolCode];
       const orderSize = symbolDetails.minimum_order_size * 3;
 
       //calculate bid or ask type
@@ -115,7 +120,7 @@ class ActiveCycles extends Component {
 
       const orderPayload = {
        //TODO: should do map/inverse pair map here
-       symbol: edgeData.pair,
+       symbol: symbolCode,
        amount: '' + orderSize,
        price: '' + price,
        side,

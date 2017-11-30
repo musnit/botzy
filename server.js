@@ -21,12 +21,12 @@ app.use(express.static('public'));
 
 app.post('/message', jsonParser, (req, res) => {
   const { type, body } = req.body;
-  console.log('sending with:');
+  console.log(`making request of type ${type} with:`);
   console.log(JSON.stringify(body));
   const restAdapter = restAdapters[body.exchange];
-  restAdapter(type, body).then(response => {
-    console.log(response.body);
-    res.send(response.body);
+  restAdapter(type, body).then(result => {
+    console.log(result);
+    res.send(result);
   }, error => {
     console.error(error.response.body);
     res.status(400).send(error.response.body);

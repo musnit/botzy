@@ -57,7 +57,18 @@ const makeRequest = (action, payload) => {
     .post(completeURL)
     .set(headers)
     .set('Content-Type', 'application/json')
-    .send(JSON.stringify(stringPayload));
+    .send(stringPayload).then(response => {
+      if (response instanceof Error) {
+        return Promise.reject({ response: response.response });
+      }
+      if(response.body.error) {
+        return Promise.reject({ response });
+      };
+      const payload = response.body;
+      return payload;
+    }, error => {
+      return Promise.reject(error);
+    });
 };
 
 export default (actionKey, payload) => {

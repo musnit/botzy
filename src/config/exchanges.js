@@ -1,5 +1,6 @@
 import Paircodes from 'config/paircodes';
 import BitfinexSymbolDetails from 'config/bitfinex-symbol-details';
+import LunoSymbolDetails from 'config/luno-symbol-details';
 
 import LUNO_SECRETS from 'secrets/luno.js';
 
@@ -46,7 +47,8 @@ const EXCHANGES = [
     fees: {
       maker: 1 - 0/100,
       taker: 1 - 1/100
-    }
+    },
+    symbolDetails: LunoSymbolDetails
   }
 ];
 
