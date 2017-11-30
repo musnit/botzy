@@ -3,10 +3,9 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
 import ActiveCycle from './ActiveCycle';
-import { EXCHANGES_BY_NAME } from 'config/exchanges';
-import PAIRCODES from 'config/paircodes';
 
 import makeRequest from 'adapters/local-server';
+import findPosition from 'helpers/position-finder';
 
 class ActiveCycles extends Component {
   activeTriggers = {}
@@ -92,40 +91,7 @@ class ActiveCycles extends Component {
       console.log(`Looking at triggering ${edgeData.id} with ${JSON.stringify(edgeData)}`);
       this.activeTriggers[edgeData.id] = undefined;
 
-      //TODO: check edge is stil good in *SOME* cycle
-
-      //TODO: calculate max order size can do
-
-      //calculate min order size can do
-      //go with min for now
-      const symbolCode = PAIRCODES[edgeData.exchange][edgeData.pair];
-      const symbolDetails = EXCHANGES_BY_NAME[edgeData.exchange].symbolDetails[symbolCode];
-      const orderSize = symbolDetails.minimum_order_size * 3;
-
-      //calculate bid or ask type
-      console.log(orderSize);
-      console.log(edgeData);
-      const pairFirst = edgeData.pair.slice(0,3);
-      let side, price;
-      if (pairFirst === edgeData.source) {
-        //we are converting in normal direction, ie, selling, ie, asking
-        side = 'sell';
-        price = edgeData.weight;
-      }
-      else {
-        //bidding
-        side = 'buy';
-        price = 1/edgeData.weight;
-      }
-
-      const orderPayload = {
-       //TODO: should do map/inverse pair map here
-       symbol: symbolCode,
-       amount: '' + orderSize,
-       price: '' + price,
-       side,
-       exchange: edgeData.exchange
-      };
+      const orderPayload = findPosition(edgeData, this.props.cycles);
 
       makeRequest('new_limit_order', orderPayload)
         .then(response => {

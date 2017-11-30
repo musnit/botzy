@@ -1,0 +1,42 @@
+.order-book {
+  background-color: #02021a;
+  display: flex;
+  flex-direction: row;
+  font-size: 12px;
+  font-weight: 700;
+  justify-content: space-between;
+  font-family: Roboto, 'Open Sans', sans-serif;
+}
+
+.order-book-side {
+  display: flex;
+  flex-direction: column;
+  padding: 3px;
+}
+
+.order-book-bids .order-book-price {
+  color: #1bd658;
+}
+
+.order-book-asks .order-book-price {
+  color: #dd2727;
+}
+
+.order-book-header {
+  color: #d5d5e7;
+}
+
+.order-book-row {
+  display: flex;
+  flex-direction: row;
+  min-width: 130px;
+}
+
+.order-book-price {
+  margin-right: auto;
+}
+
+.order-book-total-volume {
+  color: #d5d5e7;
+  margin-left: auto;
+}

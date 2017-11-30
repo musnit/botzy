@@ -58,7 +58,7 @@ class Cytoscape extends Component{
       edgesById,
       cycles,
       cyclesByEdge,
-      filters: [ 'oneMaker', 'someLuno', 'twoWay'],
+      filters: [ 'oneMaker', 'someLuno', 'someBitfinex', 'twoWay'],
       filterParams: { excludeCurrencies: 'rrt,san,avt,qtm,dat,edo,btg', includeCurrencies: '', onlyCurrencies: '' },
     };
     this.state.filteredCycles = this.filteredCycles(this.state.filters, this.state.filterParams, this.state.cycles);
@@ -149,7 +149,7 @@ class Cytoscape extends Component{
     const toggleShow = <input type='checkbox'
       checked={show} onChange={this.setShow} />;
     if (!show) {
-      return <div>{toggleShow} Show</div>;
+      return <div>{toggleShow} Toggle</div>;
     }
     const cycles = this.state.sortedCycles || [];
     const bestCycles = cycles.slice(0,100);
@@ -157,7 +157,7 @@ class Cytoscape extends Component{
     const currentFilterParams = this.state.filterParams;
     return <div style={{ display: 'flex', flexDirection: 'row' }}>
       <div>
-        {toggleShow} Show
+        {toggleShow} Toggle
         {bestCycles.map((cycle, index) => <Cycle key={index} cycle={cycle} />)}
       </div>
       <div>

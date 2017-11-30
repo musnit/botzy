@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
+import OrderBook from 'components/order-book/OrderBook';
+
 import makeRequest from 'adapters/local-server';
 
 const makeLink = (pair) => {
@@ -74,12 +76,14 @@ class ActiveEdge extends Component {
     const makerTaker = edge.data('maker') === true? 'Maker' : 'Taker';
     const depth = edge.data('depth');
     const activeOrder = edge.data('activeOrder');
+    const orderBook = edge.data('orderBook');
     return <span className='active-edge-display'>
       <div>{exchange}</div>
       <div><a target='_blank' href={makeLink(edge.data('pair'))} >{from} -> {to}</a></div>
       <div>{makerTaker}@{edge.data('price')}</div>
       <div>Depth: {edge.data('depth')}</div>
       <div>Liveness: {(Date.now() - edge.data('heartbeat'))}ms</div>
+      {orderBook && <OrderBook book={orderBook} />}
       {activeOrder && <div>Active Order: {activeOrder.price}</div>}
       <div className='active-edge-controls'>
         {edge.data('maker') && !activeOrder && <button onClick={this.go}>Go!</button>}

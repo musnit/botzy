@@ -44,6 +44,7 @@ function startForPair(pair, wsConfig, wsURL, exchange, updateEdges) {
       bidSize: orderBook.processedBids[0].totalVolume,
       askPrice: orderBook.processedAsks[0].price,
       askSize: orderBook.processedAsks[0].totalVolume,
+      orderBook,
       heartbeat: Date.now()
     };
     orderBook.asksById = _.keyBy(orderBook.asks, 'id');

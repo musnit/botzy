@@ -57,6 +57,7 @@ export const createEdgesForPair = (pair, exchangeName, data = {}) => {
         volume: data.volume,
         fee: exchange.fees.maker,
         pair,
+        orderBook: data.orderBook
       },
     },
     {
@@ -73,6 +74,7 @@ export const createEdgesForPair = (pair, exchangeName, data = {}) => {
         volume: data.volume,
         fee: exchange.fees.taker,
         pair,
+        orderBook: data.orderBook
       },
     },
     {
@@ -89,6 +91,7 @@ export const createEdgesForPair = (pair, exchangeName, data = {}) => {
         volume: data.volume,
         fee: exchange.fees.maker,
         pair,
+        orderBook: data.orderBook
       }
     },
     {
@@ -105,6 +108,7 @@ export const createEdgesForPair = (pair, exchangeName, data = {}) => {
         volume: data.volume,
         fee: exchange.fees.taker,
         pair,
+        orderBook: data.orderBook
       }
     }
   ];
