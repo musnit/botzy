@@ -2,14 +2,19 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
+import { EXCHANGES_BY_NAME } from 'config/exchanges';
+
 import OrderBook from 'components/order-book/OrderBook';
 
 import makeRequest from 'adapters/local-server';
 
-const makeLink = (pair) => {
+const makeLink = (edgeData) => {
+  const pair = edgeData.pair;
+  const exchange = EXCHANGES_BY_NAME[edgeData.exchange];
   const currency1 = pair.slice(0, 3);
   const currency2 = pair.slice(3);
-  return `https://www.bitfinex.com/t/${currency1.toUpperCase()}:${currency2.toUpperCase()}`
+  const webpage = exchange.makeLink && exchange.makeLink(currency1, currency2);
+  return webpage;
 };
 
 class ActiveEdge extends Component {
@@ -79,7 +84,7 @@ class ActiveEdge extends Component {
     const orderBook = edge.data('orderBook');
     return <span className='active-edge-display'>
       <div>{exchange}</div>
-      <div><a target='_blank' href={makeLink(edge.data('pair'))} >{from} -> {to}</a></div>
+      <div><a target='_blank' href={makeLink(edge.data())} >{from} -> {to}</a></div>
       <div>{makerTaker}@{edge.data('price')}</div>
       <div>Depth: {edge.data('depth')}</div>
       <div>Liveness: {(Date.now() - edge.data('heartbeat'))}ms</div>

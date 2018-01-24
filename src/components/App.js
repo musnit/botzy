@@ -5,8 +5,9 @@ import { Helmet } from 'react-helmet';
 
 import EXCHANGES from 'config/exchanges';
 
-import Cytoscape from './Cytoscape';
-import ActiveCycles from './ActiveCycles';
+import Cytoscape from 'components/Cytoscape';
+import ActiveCycles from 'components/ActiveCycles';
+import PositionWatcher from 'components/position-watcher/PositionWatcher';
 
 class App extends React.Component {
 
@@ -32,6 +33,7 @@ class App extends React.Component {
       </Helmet>
       <Cytoscape activeExchanges={this.state.activeExchanges} />
       <ActiveCycles />
+      <PositionWatcher />
     </div>;
   }
 

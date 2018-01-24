@@ -29,7 +29,7 @@
 .order-book-row {
   display: flex;
   flex-direction: row;
-  min-width: 130px;
+  min-width: 120px;
 }
 
 .order-book-price {

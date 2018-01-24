@@ -58,8 +58,8 @@ class Cytoscape extends Component{
       edgesById,
       cycles,
       cyclesByEdge,
-      filters: [ 'oneMaker', 'someLuno', 'someBitfinex', 'twoWay'],
-      filterParams: { excludeCurrencies: 'rrt,san,avt,qtm,dat,edo,btg', includeCurrencies: '', onlyCurrencies: '' },
+      filters: [ 'allTaker', 'twoWay', 'noFiatEdges' ],
+      filterParams: { onlyCurrencies: 'btc,eth,lend,mkr,zec,zrx', excludeCurrencies: 'rrt,san,avt,qtm,dat,edo,btg,usd,eur,etp,omg', includeCurrencies: '' },
     };
     this.state.filteredCycles = this.filteredCycles(this.state.filters, this.state.filterParams, this.state.cycles);
     window.testUpdates = this.testUpdates;

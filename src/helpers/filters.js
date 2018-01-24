@@ -9,9 +9,13 @@ export const allTaker = cycle => _.every(cycle.path, edge => {
   return edge.data('maker') === false;
 });
 
-export const oneMaker = cycle => _.filter(cycle.path, edge => {
+export const biboxAllTaker = cycle => _.every(cycle.path, edge => {
+  return edge.data('exchange') === 'bibox'? edge.data('maker') === false : true;
+});
+
+export const maxOneMaker = cycle => _.filter(cycle.path, edge => {
   return edge.data('maker') === true;
-}).length === 1;
+}).length <= 1;
 
 export const someUSD = cycle => _.some(cycle.path, edge => {
   return edge.data('source') === 'usd' || edge.data('target') === 'usd';
@@ -33,6 +37,10 @@ export const allBitfinex = cycle =>  _.every(cycle.path, edge => {
   return edge.data('exchange') === 'bitfinex';
 });
 
+export const allBibox = cycle =>  _.every(cycle.path, edge => {
+  return edge.data('exchange') === 'bibox';
+});
+
 export const allTopCurrencies = cycle =>  _.every(cycle.path, edge => {
   return TOP_CURRENCIES.includes(edge.data('source'));
 });
@@ -51,6 +59,10 @@ export const fiatSoldOnBitfinex = cycle =>  _.some(cycle.path, edge => {
 
 export const allFiatEdges = cycle =>  _.every(cycle.path, edge => {
   return FIAT.includes(edge.data('source')) || FIAT.includes(edge.data('target'));
+});
+
+export const noFiatEdges = cycle =>  _.every(cycle.path, edge => {
+  return !FIAT.includes(edge.data('source')) && !FIAT.includes(edge.data('target'));
 });
 
 export const makeFromBTCETH = cycle =>  _.some(cycle.path, edge => {
@@ -75,37 +87,36 @@ export const includeCurrencies = currencies => cycle =>  _.some(cycle.path, edge
   return currencies.split(',').includes(edge.data('source'));
 });
 
+export const onlyCurrencies = currencies => cycle =>  _.every(cycle.path, edge => {
+  return currencies.split(',').includes(edge.data('source'));
+});
+
 export const excludeCurrencies = currencies => cycle =>  _.every(cycle.path, edge => {
   return !currencies.split(',').includes(edge.data('source'));
 });
 
-//broken:
-// const onlyCurrencies = currencies => cycle =>  _.every(cycle.path, edge => {
-//   return _.some(currencies.split(','), currency => {
-//     console.log(edge.data('source') === currency);
-//     edge.data('source') === currency;
-//   });
-// });
-
 export default {
   allHighVolume: { text: 'All must be high volume', filter: allHighVolume },
   allTaker: { text: 'All must be takers', filter: allTaker },
-  oneMaker: { text: 'Must have exactly 1 maker', filter: oneMaker },
+  biboxAllTaker: { text: 'All bibox edges must be takers', filter: biboxAllTaker },
+  maxOneMaker: { text: 'Must have max 1 maker', filter: maxOneMaker },
   someUSD: { text: 'Must have some USD edge', filter: someUSD },
   someBitstamp: { text: 'Must have some Bitstamp edge', filter: someBitstamp },
   someBitfinex: { text: 'Must have some Bitfinex edge' , filter: someBitfinex },
   someLuno: { text: 'Must have some Luno edge' , filter: someLuno },
   allBitfinex: { text: 'Must have all Bitfinex edges' , filter: allBitfinex },
+  allBibox: { text: 'Must have all Bibox edges' , filter: allBibox },
   allTopCurrencies: { text: 'Must be all top currencies' , filter: allTopCurrencies },
   fiatBoughtOnBitstamp: { text: 'Must be a trade that buys fiat on bitstamp' , filter: fiatBoughtOnBitstamp },
   fiatSoldOnBitstamp: { text: 'Must be a trade that sells fiat on bitstamp' , filter: fiatSoldOnBitstamp },
   fiatSoldOnBitfinex: { text: 'Must be a trade that sells fiat on bitstamp' , filter: fiatSoldOnBitfinex },
   allFiatEdges: { text: 'All edges must trade fiat' , filter: allFiatEdges },
+  noFiatEdges: { text: 'No edges must trade fiat' , filter: noFiatEdges },
   twoWay: { text: 'Must be exactly 2-way trade' , filter: twoWay },
   fourWay: { text: 'Must be exactly 4-way trade' , filter: fourWay },
   includeCurrencies: { text: 'Must include currencies ->' , filter: includeCurrencies, params: true },
+  onlyCurrencies: { text: 'Only currencies ->' , filter: onlyCurrencies, params: true },
   excludeCurrencies: { text: 'Must exclude currencies ->' , filter: excludeCurrencies, params: true },
   makeFromBTCETH: { text: 'Must be maker on ETH or BTC sale' , filter: makeFromBTCETH },
   makeFromBTC: { text: 'Must be maker on BTC sale' , filter: makeFromBTC },
-  // onlyCurrencies: { text: 'Must include only currencies ->' , filter: onlyCurrencies, params: true },
 };
