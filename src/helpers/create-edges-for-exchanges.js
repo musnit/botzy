@@ -118,7 +118,7 @@ export const createEdgesForPair = (pair, exchangeName, data = {}) => {
 const createEdgesForExchange = exchange => {
   const pairNameMapping = exchange.adapterConfig.pairNameMapping;
   const edgesForExchange = PAIRS.reduce((accum, pair) => {
-    const pairName = pairNameMapping(pair);
+    const pairName = pairNameMapping(pair, exchange);
     if (pairName) {
       const edges = createEdgesForPair(pair, exchange.name);
       accum = accum.concat(edges);

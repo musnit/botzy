@@ -64,6 +64,21 @@ const EXCHANGES = [
     },
     makeLink: (currency1, currency2) => `https://www.bibox.com/exchange?coinPair=${currency1.toUpperCase()}_${currency2.toUpperCase()}`
   },
+  {
+    name: 'cex',
+    adapter: 'ccxt',
+    adapterConfig: {
+      pairNameMapping: (pair, exchange) => {
+        const mappedPair = [pair.slice(0,3), pair.slice(3)].join('/').toUpperCase();
+        return exchange.markets.includes(mappedPair) && mappedPair;
+      }
+    },
+    fees: {
+      maker: 1 - 0.16/100,
+      taker: 1 - 0.25/100
+    },
+    makeLink: (currency1, currency2) => `https://cex.io/trade/${currency1.toUpperCase()}-${currency2.toUpperCase()}`
+  },
 ];
 
 export default EXCHANGES;

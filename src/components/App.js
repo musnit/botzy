@@ -15,14 +15,20 @@ class App extends React.Component {
     super(props);
     this.state = {
       activeExchanges: EXCHANGES,
+      loading: true,
     };
   }
 
   componentDidMount() {
-    this.props.listen(this.state.activeExchanges);
+    this.props.listen(this.state.activeExchanges).then(_ => {
+      this.setState({ loading: false });
+    });
   }
 
   render() {
+    if(this.state.loading){
+      return 'Loading...';
+    }
     const globalState = this.state.globalState || {};
     const pairs = Object.keys(globalState);
     const cycles = this.state.cycleResults || [];

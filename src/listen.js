@@ -11,8 +11,8 @@ function updateEdges(pair, exchangeName, data) {
 }
 
 export default exchanges => {
-  exchanges.forEach(exchange => {
+  return Promise.all(exchanges.map(exchange => {
     const adapter = adapters[exchange.adapter];
-    adapter(exchange, updateEdges);
-  });
+    return adapter(exchange, updateEdges);
+  }));
 };
