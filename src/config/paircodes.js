@@ -9,8 +9,6 @@ const PAIRCODES = {
     'ethbtc': 'ETHBTC',
     'etcbtc': 'ETCBTC',
     'etcusd': 'ETCUSD',
-    'rrtusd': 'RRTUSD',
-    'rrtbtc': 'RRTBTC',
     'zecusd': 'ZECUSD',
     'zecbtc': 'ZECBTC',
     'xmrusd': 'XMRUSD',

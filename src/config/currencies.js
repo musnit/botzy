@@ -31,7 +31,6 @@ const CURRENCIES = [
   'bto',
   'amm',
   'usd',
-  'rrt',
   'zec',
   'xmr',
   'dsh',

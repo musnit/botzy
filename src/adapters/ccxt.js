@@ -13,9 +13,9 @@ function processPair(pair, exchangeConfig, tickers, updateEdges) {
     return;
   }
   const pairData = {
-    bidPrice: pairRawData.bid,
+    bidPrice: pairRawData.bid || pairRawData.last,
     bidSize: 0,
-    askPrice: pairRawData.ask,
+    askPrice: pairRawData.ask || pairRawData.last,
     askSize: 0,
     heartbeat: pairRawData.timestamp
   };
@@ -30,7 +30,10 @@ function updateTickers(exchange, exchangeConfig, updateEdges) {
 }
 
 export default function start(exchangeConfig, updateEdges) {
-  const exchange = new ccxt[exchangeConfig.name]();
+  const exchange = new ccxt[exchangeConfig.name]({
+    apiKey: exchangeConfig.adapterConfig.apiKey,
+    secret: exchangeConfig.adapterConfig.secret,
+  });
   return exchange.loadMarkets().then(_ => {
     exchangeConfig.markets = Object.keys(exchange.markets);
     updateTickers(exchange, exchangeConfig, updateEdges);

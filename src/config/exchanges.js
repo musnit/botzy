@@ -3,6 +3,7 @@ import BitfinexSymbolDetails from 'config/bitfinex-symbol-details';
 import LunoSymbolDetails from 'config/luno-symbol-details';
 
 import LUNO_SECRETS from 'secrets/luno.js';
+import BIBOX_SECRETS from 'secrets/bibox.js';
 
 import _ from 'lodash';
 
@@ -51,12 +52,29 @@ const EXCHANGES = [
     },
     symbolDetails: LunoSymbolDetails
   },
+  // {
+  //   name: 'bibox',
+  //   adapter: 'bibox',
+  //   adapterConfig: {
+  //     url: 'https://api.bibox.com/v1/mdata?cmd=ticker&pair=',
+  //     pairNameMapping: pair => Paircodes.bibox[pair]
+  //   },
+  //   fees: {
+  //     maker: 1 - 0/100,
+  //     taker: 1 - 0.1/100
+  //   },
+  //   makeLink: (currency1, currency2) => `https://www.bibox.com/exchange?coinPair=${currency1.toUpperCase()}_${currency2.toUpperCase()}`
+  // },
   {
     name: 'bibox',
-    adapter: 'bibox',
+    adapter: 'ccxt',
     adapterConfig: {
-      url: 'https://api.bibox.com/v1/mdata?cmd=ticker&pair=',
-      pairNameMapping: pair => Paircodes.bibox[pair]
+      pairNameMapping: (pair, exchange) => {
+        const mappedPair = [pair.slice(0,3), pair.slice(3)].join('/').toUpperCase();
+        return exchange.markets.includes(mappedPair) && mappedPair;
+      },
+      apiKey: BIBOX_SECRETS.apiKey,
+      secret: BIBOX_SECRETS.secret,
     },
     fees: {
       maker: 1 - 0/100,
